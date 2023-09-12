@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class Benchmark {
 
-    static int iter = Integer.MAX_VALUE;
+    static int iter = 1000;
     static int times = 1;
 
     static double[] pushTimes = new double[times];
