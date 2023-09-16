@@ -1,10 +1,11 @@
-package sorted_data;
+package utils;
 
 import java.util.LinkedHashSet;
 import java.util.Random;
 import java.util.Set;
 
 public class ArrayGenerator {
+
     private final static Random RND = new Random();
 
     public static int[] sorted(int n) {
@@ -39,7 +40,7 @@ public class ArrayGenerator {
         int[] array = new int[n];
 
         while (generated.size() < n) {
-            Integer next = RND.nextInt(max * 5);
+            Integer next = RND.nextInt(max);
             generated.add(next);
         }
 
@@ -51,6 +52,16 @@ public class ArrayGenerator {
         return array;
     }
 
+    public static int[] shuffle(int[] array) {
+
+        for (int i = 0; i < array.length; i++) {
+            int newIndex = RND.nextInt(array.length);
+            int temp = array[newIndex];
+            array[newIndex] = array[i];
+            array[i] = temp;
+        }
+        return array;
+    }
 
     public static void insert_key_sorted(int[] array, int key) {
         boolean inserted = false;
