@@ -1,5 +1,7 @@
 package sorted_data;
 
+import utils.ArrayGenerator;
+
 public class Benchmark {
 
     private static void linearUnsorted(int[] array, int[] keys) {
@@ -14,8 +16,8 @@ public class Benchmark {
         }
     }
 
-    private static void binary(int[] array, int[] indx) {
-        for (int key : indx) {
+    private static void binary(int[] array, int[] index) {
+        for (int key : index) {
             Search.binary_search(array, key);
         }
     }
