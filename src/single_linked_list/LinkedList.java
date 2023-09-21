@@ -1,10 +1,21 @@
 package single_linked_list;
 
-import java.util.NoSuchElementException;
+import java.util.Random;
 
 public class LinkedList {
 
     Cell first;
+
+    public LinkedList() {}
+
+    public LinkedList(int length) {
+        Random random = new Random();
+        Cell last = null;
+        for (int i = 0; i < length; i++) {
+            last = new Cell(random.nextInt(length), last);
+        }
+        first = last;
+    }
 
     private static class Cell {
         int head;
@@ -16,9 +27,23 @@ public class LinkedList {
         }
     }
 
-    public int getHead() {
-        if (length() == 0) throw new NoSuchElementException();
-        return first.head;
+    public int get(int index) {
+        if (index < 0 || index >= length()) throw new IndexOutOfBoundsException();
+
+        Cell current = first;
+
+        int i = 0;
+        while (current.tail != null) {
+            i++;
+            if (i == index) {
+                break;
+            }
+            else {
+                current = current.tail;
+            }
+        }
+
+        return current.head;
     }
 
     public void add(int item) {
@@ -27,10 +52,10 @@ public class LinkedList {
 
     public int length() {
         int length = 0;
-        Cell temp = first;
+        Cell current = first;
 
-        while (temp != null) {
-            temp = temp.tail;
+        while (current != null) {
+            current = current.tail;
             length++;
         }
 
@@ -38,31 +63,31 @@ public class LinkedList {
     }
 
     public boolean find(int item) {
-        Cell temp = first;
+        Cell current = first;
 
-        while (temp != null) {
-            if (temp.head == item) return true;
-            temp = temp.tail;
+        while (current != null) {
+            if (current.head == item) return true;
+            current = current.tail;
         }
         return false;
     }
 
     public void remove(int item) {
         Cell prev = null;
-        Cell temp = first;
+        Cell current = first;
 
-        while (temp != null) {
-            if (temp.head == item) {
+        while (current != null) {
+            if (current.head == item) {
                 if (prev == null) {
                     first = first.tail;
                 }
                 else {
-                    prev.tail = temp.tail;
+                    prev.tail = current.tail;
                 }
                 return;
             }
-            prev = temp;
-            temp = temp.tail;
+            prev = current;
+            current = current.tail;
         }
     }
 
@@ -76,23 +101,20 @@ public class LinkedList {
     }
 
     public void append(LinkedList list) {
-        Cell next = first;
+        Cell current = first;
 
         // If the list doesn't contain any elements
-        if (next == null) {
+        if (current == null) {
             first = list.first;
-            // Optional, since we merge two lists it should be ok
-            list.first = null;
             return;
         }
 
         // Go to the last element in the list
-        while (next.tail != null) {
-            next = next.tail;
+        while (current.tail != null) {
+            current = current.tail;
         }
 
-        next.tail = list.first;
-        list.first = null;
+        current.tail = list.first;
     }
 
     public static void main(String[] args) {

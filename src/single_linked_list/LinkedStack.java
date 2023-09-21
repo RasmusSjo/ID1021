@@ -1,7 +1,6 @@
 package single_linked_list;
 
 import java.util.EmptyStackException;
-import java.util.NoSuchElementException;
 
 public class LinkedStack {
 
@@ -17,10 +16,10 @@ public class LinkedStack {
 
     public int pop() {
         try{
-            int value = stack.getHead();
+            int value = stack.get(0);
             stack.remove(value);
             return value;
-        } catch (NoSuchElementException e) {
+        } catch (IndexOutOfBoundsException e) {
             throw new EmptyStackException();
         }
     }
