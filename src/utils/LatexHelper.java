@@ -6,9 +6,8 @@ import java.text.DecimalFormat;
 
 public class LatexHelper {
 
-    public static String createTable(double[] data, String[] rowNames, String[] columnNames) {
-        int rowLength = rowNames.length;
-        int columnLength = columnNames.length - 1;
+    public static String createTable(double[][] data, String[] columnNames, int numOfInputCol) {
+        int rowLength = data[0].length;
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -16,7 +15,7 @@ public class LatexHelper {
         stringBuilder.append("\\begin{center}\n");
 
         stringBuilder.append("\\begin{tabular}{l");
-        stringBuilder.append("|c".repeat(columnLength));
+        stringBuilder.append("|c".repeat(rowLength - 1));
         stringBuilder.append("}\n");
 
         for (String columnName : columnNames) {
@@ -27,10 +26,13 @@ public class LatexHelper {
         stringBuilder.append("\\hline\n");
 
         // Create the actual table
-        for (int i = 0; i < rowLength; i++) {
-            stringBuilder.append(rowNames[i]).append(" & ");
-            for (int j = 0; j < columnLength; j++) {
-                stringBuilder.append(dataOutput(data[i * (columnLength) + j])).append(" & ");
+        for (double[] row : data) {
+            for (int j = 0; j < rowLength; j++) {
+                if (j < numOfInputCol) {
+                    stringBuilder.append((int) row[j]).append(" & ");
+                } else {
+                    stringBuilder.append(dataOutput(row[j])).append(" & ");
+                }
             }
             stringBuilder.replace(stringBuilder.length() - 2, stringBuilder.length(), "\\\\\n");
         }
@@ -44,23 +46,85 @@ public class LatexHelper {
         return stringBuilder.toString();
     }
 
-    public static String createGraph(double[] data, int[] columns, int rowLength) {
-        int columnLength = columns.length;
+    public static String createTableMod(double[][] data, String[] columnNames, int modValue) {
+        int mod = modValue;
+        int rowLength = data[0].length;
 
         StringBuilder stringBuilder = new StringBuilder();
-        int columnNum = 0;
 
-        for (int column : columns) {
-            stringBuilder.append(column).append(" ");
+        stringBuilder.append("\\begin{table}[h]\n");
+        stringBuilder.append("\\begin{center}\n");
 
-            for (int i = 0; i < rowLength; i++) {
-                if (i == rowLength - 1) {
-                    stringBuilder.append(dataOutput(data[rowLength * columnNum++ + i])).append("\n");
-                }
-                else {
-                    stringBuilder.append(dataOutput(data[rowLength * columnNum + i])).append(" ");
+        stringBuilder.append("\\begin{tabular}{l");
+        stringBuilder.append("|c".repeat(rowLength - 1));
+        stringBuilder.append("}\n");
+
+        for (String columnName : columnNames) {
+            stringBuilder.append("\\textbf{").append(columnName).append("} & ");
+        }
+        stringBuilder.replace(stringBuilder.length() - 2, stringBuilder.length(), "\\\\\n");
+
+        stringBuilder.append("\\hline\n");
+
+        // Create the actual table
+        for (double[] row : data) {
+            for (int j = 0; j < rowLength; j++) {
+                if (j % mod == 0 && j != 0) {
+                    stringBuilder.append(dataOutput(row[j])).append(" & ");
+                    mod += 3;
+                } else {
+                    stringBuilder.append((int) row[j]).append(" & ");
                 }
             }
+            mod = modValue;
+            stringBuilder.replace(stringBuilder.length() - 2, stringBuilder.length(), "\\\\\n");
+        }
+
+        stringBuilder.append("\\end{tabular}\n");
+        stringBuilder.append("\\caption{Write caption here}\n");
+        stringBuilder.append("\\label{table:Replace this with a number}\n");
+        stringBuilder.append("\\end{center}\n");
+        stringBuilder.append("\\end{table}");
+
+        return stringBuilder.toString();
+    }
+
+    public static String createGraph(double[][] data, int numOfInputCol) {
+        int rowLength = data[0].length;
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (double[] row : data) {
+            for (int j = 0; j < rowLength; j++) {
+                if (j < numOfInputCol) {
+                    stringBuilder.append((int) row[j]).append(" ");
+                } else {
+                    stringBuilder.append(dataOutput(row[j])).append(" ");
+                }
+            }
+            stringBuilder.replace(stringBuilder.length() - 2, stringBuilder.length(), "\\\\\n");
+        }
+
+        return stringBuilder.toString();
+    }
+
+    public static String createGraphMod(double[][] data, int modValue) {
+        int mod = modValue;
+        int rowLength = data[0].length;
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (double[] row : data) {
+            for (int j = 0; j < rowLength; j++) {
+                if (j % mod == 0 && j != 0) {
+                    stringBuilder.append(dataOutput(row[j])).append(" ");
+                    mod += 3;
+                } else {
+                    stringBuilder.append((int) row[j]).append(" ");
+                }
+            }
+            stringBuilder.replace(stringBuilder.length() - 2, stringBuilder.length(), "\\\\\n");
+            mod = modValue;
         }
 
         return stringBuilder.toString();
