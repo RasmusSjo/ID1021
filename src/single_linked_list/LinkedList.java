@@ -17,7 +17,7 @@ public class LinkedList {
         first = last;
     }
 
-    private static class Cell {
+    public static class Cell {
         int head;
         Cell tail;
 
@@ -25,25 +25,6 @@ public class LinkedList {
             this.head = head;
             this.tail = tail;
         }
-    }
-
-    public int get(int index) {
-        if (index < 0 || index >= length()) throw new IndexOutOfBoundsException();
-
-        Cell current = first;
-
-        int i = 0;
-        while (current.tail != null) {
-            i++;
-            if (i == index) {
-                break;
-            }
-            else {
-                current = current.tail;
-            }
-        }
-
-        return current.head;
     }
 
     public void add(int item) {
@@ -117,28 +98,72 @@ public class LinkedList {
         current.tail = list.first;
     }
 
-    public static void main(String[] args) {
-        LinkedList linkedList = new LinkedList();
-        LinkedList linkedList2 = new LinkedList();
+    public void unlink(Cell cell) {
+        Cell current = first;
+        Cell previous = null;
 
-        linkedList.add(5);
-        linkedList.add(7);
+        while (current != cell) {
+            previous = current;
+            current = current.tail;
+        }
 
-        linkedList2.add(3);
-        linkedList2.add(8);
-        linkedList2.add(13);
+        if (previous == null) {
+            first = first.tail;
+        }
+        else {
+            previous.tail = current.tail;
+        }
 
-        linkedList.display();
-        linkedList2.display();
+        cell.tail = null;
+    }
 
-        LinkedStack stack = new LinkedStack();
+    public void insert(Cell cell) {
+        cell.tail = first;
+        first = cell;
+    }
 
-        stack.push(3);
-        stack.push(89);
-        stack.push(32);
+    public int get(int index) {
+        if (index < 0 || index >= length()) throw new IndexOutOfBoundsException();
 
-        stack.display();
-        System.out.println(stack.pop());
-        stack.display();
+        Cell current = first;
+
+        int i = 0;
+        while (current.tail != null) {
+            i++;
+            if (i == index) {
+                break;
+            }
+            else {
+                current = current.tail;
+            }
+        }
+
+        return current.head;
+    }
+
+    public Cell getCell(int index) {
+        if (index < 0 || index >= length()) throw new IndexOutOfBoundsException();
+
+        Cell current = first;
+
+        int i = 0;
+        while (i != index) {
+            i++;
+            current = current.tail;
+        }
+
+        return current;
+    }
+
+    public Cell[] getCellArray() {
+        Cell current = first;
+        Cell[] cells = new Cell[length()];
+
+        int i = 0;
+        while (current != null) {
+            cells[i++] = current;
+            current = current.tail;
+        }
+        return cells;
     }
 }
