@@ -1,8 +1,6 @@
 package utils;
 
-import java.util.LinkedHashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class ArrayGenerator {
 
@@ -37,6 +35,23 @@ public class ArrayGenerator {
 
     public static int[] unsorted(int n, int max) {
         Set<Integer> generated = new LinkedHashSet<>();
+        int[] array = new int[n];
+
+        while (generated.size() < n) {
+            Integer next = RND.nextInt(max);
+            generated.add(next);
+        }
+
+        int i = 0;
+        for (int num : generated) {
+            array[i++] = num;
+        }
+
+        return array;
+    }
+
+    public static int[] unsortedDup(int n, int max) {
+        List<Integer> generated = new ArrayList<>();
         int[] array = new int[n];
 
         while (generated.size() < n) {
