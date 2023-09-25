@@ -1,7 +1,5 @@
 package sorting;
 
-import utils.ArrayGenerator;
-
 public class ArraySorter {
 
     public static void selection(int[] array) {
@@ -96,22 +94,5 @@ public class ArraySorter {
         int temp = array[index2];
         array[index2] = array[index1];
         array[index1] = temp;
-    }
-
-    public static void main(String[] args) {
-        int[] array = ArrayGenerator.unsorted(20);
-
-        for (int num : array) {
-            System.out.print(num + " ");
-        }
-//        selection(array);
-//        insertion(array);
-        mergeSort(array);
-//        quickSort(array, 0, array.length - 1);
-        System.out.println();
-        for (int num : array) {
-            System.out.print(num + " ");
-        }
-        System.out.println();
     }
 }
