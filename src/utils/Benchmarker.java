@@ -1,5 +1,6 @@
 package utils;
 
+import binary_tree.BinaryTree;
 import double_linked_list.*;
 import single_linked_list.ArrayList;
 import single_linked_list.*;
@@ -7,8 +8,11 @@ import sorted_data.Search;
 import sorting.ArraySorter;
 
 import java.util.Arrays;
+import java.util.Random;
 
 public class Benchmarker {
+
+    private final static Random RND = new Random();
 
     // Variables related to the file
     private static String fileName;
@@ -57,6 +61,15 @@ public class Benchmarker {
                 rowsToIgnore = new int[]{0};
 
                 sizes = new int[]{10, 20, 40, 100, 200, 400, 1000, 2000, 4000, 8000, 16000, 32000, 64000};
+                iterations = 1000;
+            }
+            case 6 -> {
+                fileName = "binary_tree2";
+                columnNames = new String[]{"Size", "Binary Tree (us)", "Binary Search (us)"};
+                rowsToIgnore = new int[]{0};
+
+                sizes = new int[]{10, 20, 40, 100, 200, 400, 1000, 2000, 4000, 8000, 16000,
+                        32000, 64000, 128000, 256000, 512000, 1024000, 1500000};
                 iterations = 1000;
             }
         }
@@ -346,16 +359,50 @@ public class Benchmarker {
         // Array to store the benchmark data
         double[][] benchmark = new double[columnLength][rowLength];
 
+        int[] array;
+        BinaryTree tree = new BinaryTree();
 
+        long time;
+        double minTime1, minTime2;
 
+        for (int size = 0; size < sizes.length; size++) {
+            array = ArrayGenerator.linearArray(sizes[size]);
+            tree.constructTreeFromArray(array, 0, array.length - 1);
 
+            minTime1 = Double.POSITIVE_INFINITY;
+            minTime2 = Double.POSITIVE_INFINITY;
+
+            int keysSize = 1000;
+
+            for (int i = 0; i < iterations; i++) {
+                int[] keys = ArrayGenerator.unsortedDup(keysSize, array[array.length - 1]);
+
+                time = System.nanoTime();
+                for (int key : keys) {
+                    tree.lookup(key);
+                }
+                time = System.nanoTime() - time;
+                minTime1 = minTime1 > time ? time : minTime1;
+
+                time = System.nanoTime();
+                for (int key : keys) {
+                    Search.binary_search(array, key);
+                }
+                time = System.nanoTime() - time;
+                minTime2 = minTime2 > time ? time : minTime2;
+            }
+
+            benchmark[size][0] = sizes[size];
+            benchmark[size][1] = minTime1;
+            benchmark[size][2] = minTime2;
+        }
 
         return benchmark;
     }
 
 
     public static void main(String[] args) {
-        int assignmentNumber = 3;
+        int assignmentNumber = 6;
 
         setupBench(assignmentNumber);
 
