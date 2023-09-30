@@ -1,7 +1,5 @@
 package binary_tree;
 
-import utils.ArrayGenerator;
-
 import java.util.Iterator;
 import java.util.Random;
 
@@ -145,12 +143,5 @@ public class BinaryTree implements Iterable<Integer> {
 
         // Print left subtree with increased depth
         printTree(node.left, depth + 1);
-    }
-
-    public static void main(String[] args) {
-        BinaryTree tree = new BinaryTree();
-        int[] treeArray = ArrayGenerator.sorted(40);
-        tree.constructTreeFromArray(treeArray, 0, treeArray.length - 1);
-        tree.printTree();
     }
 }

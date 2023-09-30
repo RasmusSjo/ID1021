@@ -5,7 +5,6 @@ import java.util.Stack;
 
 public class TreeIterator implements Iterator<Integer>{
 
-    private Node next;
     private final Stack<Node> stack;
 
     public TreeIterator(Node root) {
@@ -25,7 +24,7 @@ public class TreeIterator implements Iterator<Integer>{
 
     @Override
     public Integer next() {
-        next = stack.pop();
+        Node next = stack.pop();
 
         if (next.right != null) {
             Node leftMost = next.right;
