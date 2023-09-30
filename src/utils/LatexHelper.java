@@ -6,8 +6,20 @@ import java.io.IOException;
 public class LatexHelper {
 
     private final static int prefix = 1000;
-    private final static int precision = 3;
+    private final static int precision = 2;
 
+    /**
+     * Takes in a 2-dimensional array with benchmark result and returns
+     * a string formatted as a latex table. The length of the columnNames array
+     * should be the same as the length of each array within the 2d array.
+     * <br>
+     * The leftmost element in each row should be the size used for the benchmark.
+     *
+     * @param data 2-dimensional array containing the benchmark result
+     * @param columnNames the names of each column
+     * @param colsToIgnore array with the column numbers to not format
+     * @return a string formatted to as a latex table
+     */
     public static String createTable(double[][] data, String[] columnNames, int[] colsToIgnore) {
         int rowLength = data[0].length;
 
@@ -58,6 +70,14 @@ public class LatexHelper {
         stringBuilder.append("\\end{table}");
     }
 
+    /**
+     * Creates a table with the benchmark results and outputs returns it as a string.
+     * Can be used for programs like gnuplot.
+     *
+     * @param data 2-dimensional array containing the benchmark result
+     * @param colsToIgnore array with the column numbers to not format
+     * @return a string formatted to as a table for gnuplot
+     */
     public static String createGraph(double[][] data, int[] colsToIgnore) {
 
         StringBuilder stringBuilder = new StringBuilder();

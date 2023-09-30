@@ -6,16 +6,47 @@ public class ArrayGenerator {
 
     private final static Random RND = new Random();
 
+    /**
+     * Creates a sorted array of length n. The spacing between
+     * the elements is 1-3.
+     *
+     * @param n length of the array to be created
+     * @return a sorted list that doesn't contain any duplicates
+     */
     public static int[] sorted(int n) {
         int[] array = new int[n];
         int nxt = 0;
         for (int i = 0; i < n ; i++) {
-            nxt += RND.nextInt(10) + 1;
+            nxt += RND.nextInt(3) + 1;
             array[i] = nxt;
         }
         return array;
     }
 
+    /**
+     * Creates a sorted array of length n that has a possibility of containing
+     * duplicate elements. The spacing between the elements is 0-2.
+     *
+     * @param n length of the array to be created
+     * @return a sorted array that can contain duplicates
+     */
+    public static int[] sortedDup(int n) {
+        int[] array = new int[n];
+        int nxt = 0;
+        for (int i = 0; i < n ; i++) {
+            nxt += RND.nextInt(3);
+            array[i] = nxt;
+        }
+        return array;
+    }
+
+    /**
+     * Creates an unsorted array of length n that doesn't contain any duplicates.
+     * The elements are randomised between 0-5n
+     *
+     * @param n the length of the array
+     * @return an unsorted array that doesn't contain any duplicates
+     */
     public static int[] unsorted(int n) {
         Set<Integer> generated = new LinkedHashSet<>();
         int[] array = new int[n];
@@ -33,7 +64,16 @@ public class ArrayGenerator {
         return array;
     }
 
+    /**
+     * Creates an unsorted array of length n that doesn't contain any duplicates.
+     * The max value of the elements is max.
+     *
+     * @param n the length of the array
+     * @param max the maximum value of the elements
+     * @return an unsorted array that doesn't contain any duplicates
+     */
     public static int[] unsorted(int n, int max) {
+        if (n > max) throw new IllegalArgumentException();
         Set<Integer> generated = new LinkedHashSet<>();
         int[] array = new int[n];
 
@@ -50,6 +90,14 @@ public class ArrayGenerator {
         return array;
     }
 
+    /**
+     * Creates an unsorted array of length n that can contain duplicates.
+     * The max value of the elements is max.
+     *
+     * @param n the length of the array
+     * @param max the maximum value of the elements
+     * @return an unsorted array that can contain duplicates
+     */
     public static int[] unsortedDup(int n, int max) {
         List<Integer> generated = new ArrayList<>();
         int[] array = new int[n];
@@ -64,6 +112,14 @@ public class ArrayGenerator {
             array[i++] = num;
         }
 
+        return array;
+    }
+
+    public static int[] linearArray(int length) {
+        int[] array = new int[length];
+        for (int i = 0; i < length; i++) {
+            array[i] = i;
+        }
         return array;
     }
 
