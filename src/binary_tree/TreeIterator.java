@@ -1,38 +1,32 @@
 package binary_tree;
 
+import queue.ArrayQueue;
+import queue.LinkedQueue;
+import queue.Queue;
+
 import java.util.Iterator;
-import java.util.Stack;
 
 public class TreeIterator implements Iterator<Integer>{
 
-    private final Stack<Node> stack;
+    private final Queue<Node> queue;
 
     public TreeIterator(Node root) {
-        stack = new Stack<>();
-        Node leftMost = root;
-
-        while (leftMost != null) {
-            stack.push(leftMost);
-            leftMost = leftMost.left;
-        }
+        queue = new LinkedQueue<>();
+        queue.add(root);
     }
 
     @Override
     public boolean hasNext() {
-        return !stack.isEmpty();
+        return !queue.isEmpty();
     }
 
     @Override
     public Integer next() {
-        Node next = stack.pop();
+        Node next = queue.remove();
 
-        if (next.right != null) {
-            Node leftMost = next.right;
-            while (leftMost != null) {
-                stack.push(leftMost);
-                leftMost = leftMost.left;
-            }
-        }
+        if (next.left != null) queue.add(next.left);
+        if (next.right != null) queue.add(next.right);
+
         return next.key;
     }
 
