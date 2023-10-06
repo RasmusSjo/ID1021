@@ -71,7 +71,7 @@ public class LatexHelper {
     }
 
     /**
-     * Creates a table with the benchmark results and outputs returns it as a string.
+     * Creates a table containing the benchmark results and returns it as a string.
      * Can be used for programs like gnuplot.
      *
      * @param data 2-dimensional array containing the benchmark result

@@ -97,7 +97,7 @@ public class ArrayQueue<T> implements Queue<T> {
                 copiedQueue[newIndex] = queue[oldIndex++];
             }
 
-            // Copy array from 0 to first - 1
+            // Copy array from 0 to last - 1
             for (int oldIndex = 0; oldIndex < last; newIndex++) {
                 copiedQueue[newIndex] = queue[oldIndex++];
             }

@@ -6,15 +6,18 @@ public class LinkedList {
 
     Cell first;
 
-    public LinkedList() {}
+    public LinkedList() {
+        this(0);
+    }
 
     public LinkedList(int length) {
-        Random random = new Random();
-        Cell last = null;
-        for (int i = 0; i < length; i++) {
-            last = new Cell(random.nextInt(length), last);
+        first = null;
+        if (length > 0) {
+            Random random = new Random();
+            for (int i = 0; i < length; i++) {
+                first = new Cell(random.nextInt(length), first);
+            }
         }
-        first = last;
     }
 
     public static class Cell {
