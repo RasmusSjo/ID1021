@@ -6,7 +6,7 @@ import java.io.IOException;
 public class LatexHelper {
 
     private final static int prefix = 1000;
-    private final static int precision = 2;
+    private final static int precision = 3;
 
     /**
      * Takes in a 2-dimensional array with benchmark result and returns

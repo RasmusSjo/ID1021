@@ -72,6 +72,14 @@ public class Benchmarker {
                         32000, 64000, 128000, 256000, 512000, 1024000, 1500000};
                 iterations = 1000;
             }
+            case 8 -> {
+                fileName = "quick_sort";
+                columnNames = new String[]{"Array/List size", "Array (us)", "LinkedList (us)", "Insertion sort (for comparison)"};
+                rowsToIgnore = new int[]{0};
+
+                sizes = new int[]{10, 20, 40, 80, 160, 320, 640, 1280};
+                iterations = 1000;
+            }
         }
     }
 
@@ -83,6 +91,7 @@ public class Benchmarker {
             case 4 -> singleLinked();
             case 5 -> doublyLinked();
             case 6 -> binaryTree();
+            case 8 -> quickSort();
             default -> throw new IllegalStateException("Unexpected value: " + assignmentNumber);
         };
     }
@@ -400,9 +409,89 @@ public class Benchmarker {
         return benchmark;
     }
 
+    /**
+     * Benchmarks the quick sort methods implemented for arrays and linked lists.
+     * The benchmark measured the time it took to sort 100 arrays/lists with randomised values
+     *
+     * @return array containing the benchmark result
+     */
+    private static double[][] quickSort() {
+
+        int rowLength = columnNames.length;
+        int columnLength = sizes.length;
+
+        int benchSize = 100;
+
+        // Array to store the benchmark data
+        double[][] benchmark = new double[columnLength][rowLength];
+
+        int[][] arrays;
+        int[][] arrays2;
+        quick_sort.LinkedList[] lists;
+
+        long time;
+        double minTime1, minTime2, minTime3;
+
+        for (int size = 0; size < sizes.length; size++) {
+            // Create 'benchSize' different arrays
+
+            minTime1 = Double.POSITIVE_INFINITY;
+            minTime2 = Double.POSITIVE_INFINITY;
+            minTime3 = Double.POSITIVE_INFINITY;
+
+            for (int i = 0; i < iterations; i++) {
+
+                arrays = new int[benchSize][sizes[size]];
+                arrays2 = new int[benchSize][sizes[size]];
+                for (int j = 0; j < arrays.length; j++) {
+                    arrays[j] = ArrayGenerator.unsorted(sizes[size]);
+                    arrays2[j] = Arrays.copyOf(arrays[j], arrays[j].length);
+                }
+
+                // Create 'benchSize' different LinkedLists corresponding to the arrays
+                lists = new quick_sort.LinkedList[benchSize];
+                for (int j = 0; j < arrays.length; j++) {
+                    lists[j] = quick_sort.LinkedList.createLinkedFromArray(arrays[j]);
+                }
+
+
+                // Measure the time it takes to sort 'benchSize' number of LinkedLists
+                time = System.nanoTime();
+                for (int[] array: arrays) {
+                    //quick_sort.ArraySort.sort(array, 0, array.length - 1);
+                    ArraySorter.quickSort(array, 0, array.length - 1);
+                }
+                time = System.nanoTime() - time;
+                minTime1 = minTime1 > time ? time : minTime1;
+
+                // Measure the time it takes to sort 'benchSize' number of arrays
+                time = System.nanoTime();
+                for (quick_sort.LinkedList list : lists) {
+                    quick_sort.LinkedSort.quickSort(list);
+                }
+                time = System.nanoTime() - time;
+                minTime2 = minTime2 > time ? time : minTime2;
+
+                // Measure the time it takes to sort 'benchSize' number of arrays with insertion sort
+                time = System.nanoTime();
+                for (int[] array2: arrays2) {
+                    ArraySorter.insertion(array2);
+                }
+                time = System.nanoTime() - time;
+                minTime3 = minTime3 > time ? time : minTime3;
+            }
+
+            benchmark[size][0] = sizes[size];
+            benchmark[size][1] = minTime1;
+            benchmark[size][2] = minTime2;
+            benchmark[size][3] = minTime3;
+        }
+
+        return benchmark;
+    }
 
     public static void main(String[] args) {
-        int assignmentNumber = 6;
+        int assignmentNumber = 8;
 
         setupBench(assignmentNumber);
 
