@@ -28,7 +28,7 @@ public class LinkedSort {
     private static LinkedList.Node partition(LinkedList list, LinkedList smaller, LinkedList larger) {
         LinkedList.Node pivot = list.first;
 
-        LinkedList.Node current = list.first.next;
+        LinkedList.Node current = pivot.next;
         while (current != null) {
             LinkedList.Node node = current;
             current = current.next;
@@ -77,7 +77,7 @@ public class LinkedSort {
             }
             current = current.next;
         }
-        // The following part could be greatly improved by keeping the pivot in the smaller list
+        // The following part can be greatly improved by keeping the pivot in the smaller list
         if (smallTemp != null) smallTemp.next = null;
         if (largeTemp != null) largeTemp.next = null;
 
@@ -97,33 +97,6 @@ public class LinkedSort {
         list.next = largePart;
 
         return head;
-    }
-
-    public static void main(String[] args) {
-        int[] array = ArrayGenerator.unsorted(10);
-        int[] array2 = Arrays.copyOf(array, array.length);
-        LinkedList list = LinkedList.createLinkedFromArray(array);
-        for (int i : array) {
-            System.out.print(i + " ");
-        }
-        System.out.println();
-
-        ArraySort.sort(array, 0, array.length - 1);
-        for (int i : array) {
-            System.out.print(i + " ");
-        }
-        System.out.println("\n");
-
-        list.display();
-        quickSort(list);
-        list.display();
-
-        list.append(LinkedList.createLinkedFromArray(array2));
-        int[] listArr = list.listToArr();
-        for (int i : listArr) {
-            System.out.print(i + " ");
-        }
-        System.out.println("\n");
     }
 }
 

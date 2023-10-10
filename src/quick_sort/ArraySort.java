@@ -11,11 +11,11 @@ public class ArraySort {
         sort(array, pivotIndex + 1, end);
     }
 
-    private static int partition(int[] array, int min, int max) {
-        int pivot = array[min];
+    private static int partition(int[] array, int start, int end) {
+        int pivot = array[start];
 
-        int i = min;
-        int j = max;
+        int i = start;
+        int j = end;
 
         while (i < j) {
             while (pivot < array[j]) {
@@ -28,7 +28,7 @@ public class ArraySort {
                 swap(array, i, j);
             }
         }
-        swap(array, min, j);
+        swap(array, start, j);
 
         return j;
     }
