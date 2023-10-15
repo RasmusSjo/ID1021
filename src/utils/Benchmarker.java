@@ -1,7 +1,9 @@
 package utils;
 
 import binary_tree.BinaryTree;
-import double_linked_list.*;
+import doubly_linked_list.*;
+import priority_queue.*;
+import heap.*;
 import single_linked_list.ArrayList;
 import single_linked_list.*;
 import sorted_data.Search;
@@ -72,12 +74,45 @@ public class Benchmarker {
                         32000, 64000, 128000, 256000, 512000, 1024000, 1500000};
                 iterations = 1000;
             }
+            case 7 -> throw new IllegalStateException("No benchmark for this assignment!");
             case 8 -> {
                 fileName = "quick_sort";
                 columnNames = new String[]{"Array/List size", "Array (us)", "LinkedList (us)", "Insertion sort (for comparison)"};
                 rowsToIgnore = new int[]{0};
 
                 sizes = new int[]{10, 20, 40, 80, 160, 320, 640, 1280};
+                iterations = 1000;
+            }
+            case 9 -> {
+                fileName = "priority_queue";
+                columnNames = new String[]{"Queue size", "Enqueue (Unsorted)", "Dequeue (Unsorted)", "Enqueue (Sorted)", "Dequeue (Sorted)"};
+                rowsToIgnore = new int[]{0};
+
+                sizes = new int[]{10, 20, 40, 100, 200, 400, 1000, 2000, 4000, 10000};
+                iterations = 1000;
+            }
+            case 10 -> {
+                fileName = "heap_time";
+                columnNames = new String[]{"Number of pushes/removes-adds", "Push (µs)", "Remove then add (µs)"};
+                rowsToIgnore = new int[]{0};
+
+                sizes = new int[]{100, 200, 400, 1000, 2000, 4000, 10000};
+                iterations = 1000;
+            }
+            case 11 -> {
+                fileName = "heap_depth";
+                columnNames = new String[]{"Increment value", "Depth"};
+                rowsToIgnore = new int[]{0, 1};
+
+                sizes = new int[]{1000};
+                iterations = 1;
+            }
+            case 12 -> {
+                fileName = "heap_linked_comp";
+                columnNames = new String[]{"Elements added/removed", "Linked heap", "Array heap", "Linked (sorted)", "Linked (unsorted)"};
+                rowsToIgnore = new int[]{0};
+
+                sizes = new int[]{10,100, 200, 400, 1000, 2000, 4000, 10000};
                 iterations = 1000;
             }
         }
@@ -91,7 +126,12 @@ public class Benchmarker {
             case 4 -> singleLinked();
             case 5 -> doublyLinked();
             case 6 -> binaryTree();
+            case 7 -> throw new IllegalStateException("No benchmark for this assignment!");
             case 8 -> quickSort();
+            case 9 -> priorityQueue();
+            case 10 -> linkedHeapTime();
+            case 11 -> linkedHeapDepth();
+            case 12 -> queueComparison();
             default -> throw new IllegalStateException("Unexpected value: " + assignmentNumber);
         };
     }
@@ -110,7 +150,7 @@ public class Benchmarker {
             int arraySize = sizes[size];
 
             int numOfKeys = 100;
-            int[] keys = ArrayGenerator.unsorted(numOfKeys, arraySize);
+            int[] keys = ArrayGenerator.unsorted(numOfKeys, 0, arraySize);
 
             int[] unsortedArray = ArrayGenerator.unsorted(arraySize);
             int[] sortedArray = Arrays.copyOf(unsortedArray, unsortedArray.length);
@@ -330,7 +370,7 @@ public class Benchmarker {
                 LinkedList.Cell[] singleCellArray = singleLinked.getCellArray();
                 DoublyLinkedList.Cell[] doublyCellArray = doublyLinked.getCellArray();
 
-                int[] keys = ArrayGenerator.unsortedDup(k, sizes[size]);
+                int[] keys = ArrayGenerator.unsortedDup(k, 0, sizes[size]);
 
                 // Unlink and insert a cell in a doubly linked list
                 t1 = System.nanoTime();
@@ -384,7 +424,7 @@ public class Benchmarker {
             int keysSize = 1000;
 
             for (int i = 0; i < iterations; i++) {
-                int[] keys = ArrayGenerator.unsortedDup(keysSize, array[array.length - 1]);
+                int[] keys = ArrayGenerator.unsortedDup(keysSize, 0, array[array.length - 1]);
 
                 time = System.nanoTime();
                 for (int key : keys) {
@@ -409,12 +449,6 @@ public class Benchmarker {
         return benchmark;
     }
 
-    /**
-     * Benchmarks the quick sort methods implemented for arrays and linked lists.
-     * The benchmark measured the time it took to sort 100 arrays/lists with randomised values
-     *
-     * @return array containing the benchmark result
-     */
     private static double[][] quickSort() {
 
         int rowLength = columnNames.length;
@@ -490,8 +524,257 @@ public class Benchmarker {
         return benchmark;
     }
 
+    private static double[][] priorityQueue() {
+        int rowLength = columnNames.length;
+        int columnLength = sizes.length;
+
+        // Array to store the benchmark data
+        double[][] benchmark = new double[columnLength][rowLength];
+
+        int[] array;
+        UnsortedPriorityQueue unsortedPQueue = new UnsortedPriorityQueue();
+        SortedPriorityQueue sortedPQueue = new SortedPriorityQueue();
+
+        long time;
+        double enqueueTime1, dequeueTime1, enqueueTime2, dequeueTime2;
+
+        for (int size = 0; size < sizes.length; size++) {
+            // Create 'benchSize' different arrays
+
+            enqueueTime1 = Double.POSITIVE_INFINITY;
+            dequeueTime1 = Double.POSITIVE_INFINITY;
+            enqueueTime2 = Double.POSITIVE_INFINITY;
+            dequeueTime2 = Double.POSITIVE_INFINITY;
+
+            for (int i = 0; i < iterations; i++) {
+                // Generate a new array
+                array = ArrayGenerator.unsorted(sizes[size]);
+
+                // Measure the time it takes to sort 'benchSize' number of LinkedLists
+                time = System.nanoTime();
+                for (int value: array) {
+                    unsortedPQueue.add(value);
+                }
+                time = System.nanoTime() - time;
+                enqueueTime1 = enqueueTime1 > time ? time : enqueueTime1;
+
+                time = System.nanoTime();
+                for (int j = 0; j < sizes[size]; j++) {
+                    unsortedPQueue.remove();
+                }
+                time = System.nanoTime() - time;
+                dequeueTime1 = dequeueTime1 > time ? time : dequeueTime1;
+
+                // Measure the time it takes to enqueue sizes[size] number of items in a sorted queue
+                time = System.nanoTime();
+                for (int value: array) {
+                    sortedPQueue.add(value);
+                }
+                time = System.nanoTime() - time;
+                enqueueTime2 = enqueueTime2 > time ? time : enqueueTime2;
+
+                time = System.nanoTime();
+                for (int j = 0; j < sizes[size]; j++) {
+                    sortedPQueue.remove();
+                }
+                time = System.nanoTime() - time;
+                dequeueTime2 = dequeueTime2 > time ? time : dequeueTime2;
+            }
+
+            benchmark[size][0] = sizes[size];
+            benchmark[size][1] = enqueueTime1;
+            benchmark[size][2] = dequeueTime1;
+            benchmark[size][3] = enqueueTime2;
+            benchmark[size][4] = dequeueTime2;
+        }
+
+        return benchmark;
+    }
+
+    private static double[][] linkedHeapTime() {
+        int rowLength = columnNames.length;
+        int columnLength = sizes.length;
+
+        // Array to store the benchmark data
+        double[][] benchmark = new double[columnLength][rowLength];
+
+        int heapSize = 1023;
+        LinkedHeap heapPush = new LinkedHeap();
+        LinkedHeap heapRmAdd = new LinkedHeap();
+
+        long time;
+        double minTime1, minTime2;
+
+        int[] array, increments;
+
+        for (int size = 0; size < sizes.length; size++) {
+            minTime1 = Double.POSITIVE_INFINITY;
+            minTime2 = Double.POSITIVE_INFINITY;
+
+            for (int i = 0; i < iterations; i++) {
+                // Constant size of the heap for this benchmark
+                array = ArrayGenerator.unsorted(heapSize, 0, 10000);
+                increments = ArrayGenerator.unsortedDup(sizes[size], 10, 100);
+
+                for (int value : array) {
+                    heapPush.add(value);
+                    heapRmAdd.add(value);
+                }
+
+                time = System.nanoTime();
+                for (int increment : increments) {
+                    heapPush.push(increment);
+                }
+                time = System.nanoTime() - time;
+                minTime1 = minTime1 > time ? time : minTime1;
+
+                int value;
+                time = System.nanoTime();
+                for (int increment : increments) {
+                    value = heapRmAdd.remove();
+                    value += increment;
+                    heapRmAdd.add(value);
+                }
+                time = System.nanoTime() - time;
+                minTime2 = minTime2 > time ? time : minTime2;
+            }
+
+            System.out.println("Min time for pushing " + sizes[size] + " times: " + minTime1);
+            System.out.println("Min time for removing/adding " + sizes[size] + " times: " + minTime2);
+
+            benchmark[size][0] = sizes[size];
+            benchmark[size][1] = minTime1;
+            benchmark[size][2] = minTime2;
+        }
+
+        return benchmark;
+    }
+
+    private static double[][] linkedHeapDepth() {
+        int rowLength = columnNames.length;
+        int columnLength = sizes[0];
+
+        // Array to store the benchmark data
+        double[][] benchmark = new double[columnLength][rowLength];
+
+        int heapSize = 1023;
+        LinkedHeap heap = new LinkedHeap();
+
+        long time;
+        double minTime1, minTime2;
+
+        int[] array, increments;
+
+        array = ArrayGenerator.unsorted(heapSize, 0, 10000);
+        increments = ArrayGenerator.unsortedDup(sizes[0], 10, 100);
+
+        for (int value : array) {
+            heap.add(value);
+        }
+
+        int depth, incr;
+        for (int i = 0; i < increments.length; i++) {
+            incr = increments[i];
+            depth = heap.push(incr);
+
+            benchmark[i][0] = incr;
+            benchmark[i][1] = depth;
+        }
+
+        return benchmark;
+    }
+
+    private static double[][] queueComparison() {
+        int rowLength = columnNames.length;
+        int columnLength = sizes.length;
+
+        // Array to store the benchmark data
+        double[][] benchmark = new double[columnLength][rowLength];
+
+        LinkedHeap linkedHeap = new LinkedHeap();
+        ArrayHeap arrayHeap;
+        UnsortedPriorityQueue queueUnsorted = new UnsortedPriorityQueue();
+        SortedPriorityQueue queueSorted = new SortedPriorityQueue();
+
+        long startTime, endTime, elapsedTime;
+        double linkedTime, arrayTime, unsortedTime, sortedTime;
+
+        int[] array;
+
+        for (int size = 0; size < sizes.length; size++) {
+            linkedTime = Double.POSITIVE_INFINITY;
+            arrayTime = Double.POSITIVE_INFINITY;
+            unsortedTime = Double.POSITIVE_INFINITY;
+            sortedTime = Double.POSITIVE_INFINITY;
+            arrayHeap = new ArrayHeap(sizes[size]);
+
+            for (int i = 0; i < iterations; i++) {
+                array = ArrayGenerator.unsorted(sizes[size]);
+
+                startTime = System.nanoTime();
+                for (int value : array) {
+                    linkedHeap.add(value);
+                }
+                for (int j = 0; j < array.length; j++) {
+                    linkedHeap.remove();
+                }
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                linkedTime = linkedTime > elapsedTime ? elapsedTime : linkedTime;
+
+                startTime = System.nanoTime();
+                for (int value : array) {
+                    arrayHeap.add(value);
+                }
+                for (int j = 0; j < array.length; j++) {
+                    arrayHeap.remove();
+                }
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                arrayTime = arrayTime > elapsedTime ? elapsedTime : arrayTime;
+
+                startTime = System.nanoTime();
+                for (int value : array) {
+                    queueUnsorted.add(value);
+                }
+                for (int j = 0; j < array.length; j++) {
+                    queueUnsorted.remove();
+                }
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                unsortedTime = unsortedTime > elapsedTime ? elapsedTime : unsortedTime;
+
+                startTime = System.nanoTime();
+                for (int value : array) {
+                    queueSorted.add(value);
+                }
+                for (int j = 0; j < array.length; j++) {
+                    queueSorted.remove();
+                }
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                sortedTime = sortedTime > elapsedTime ? elapsedTime : sortedTime;
+            }
+
+            System.out.println("Linked heap - min time for adding/removing " + sizes[size] + " elements: " + linkedTime);
+            System.out.println("Array heap - min time for adding/removing " + sizes[size] + " elements: " + arrayTime);
+            System.out.println("Unsorted queue - min time for adding/removing " + sizes[size] + " elements: " + unsortedTime);
+            System.out.println("Sorted queuue - min time for adding/removing " + sizes[size] + " elements: " + sortedTime);
+            System.out.println();
+
+            benchmark[size][0] = sizes[size];
+            benchmark[size][1] = linkedTime;
+            benchmark[size][2] = arrayTime;
+            benchmark[size][3] = unsortedTime;
+            benchmark[size][4] = sortedTime;
+
+        }
+
+        return benchmark;
+    }
+
     public static void main(String[] args) {
-        int assignmentNumber = 8;
+        int assignmentNumber = 12;
 
         setupBench(assignmentNumber);
 
