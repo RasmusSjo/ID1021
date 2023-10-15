@@ -1,9 +1,5 @@
 package quick_sort;
 
-import utils.ArrayGenerator;
-
-import java.util.Arrays;
-
 public class LinkedSort {
 
     public static void quickSort(LinkedList list) {

@@ -37,7 +37,8 @@ public class LinkedHeap {
         while (true) {
             current.size++;
 
-            // Swap new value with current value if new value is larger if new prio is higher than prio of current
+            // Swap new value with current value if new value has
+            // higher priority, i.e. is smaller
             if (value <= current.value) {
                 int temp = current.value;
                 current.value = value;

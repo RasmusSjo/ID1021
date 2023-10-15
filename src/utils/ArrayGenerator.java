@@ -72,13 +72,13 @@ public class ArrayGenerator {
      * @param max the maximum value of the elements
      * @return an unsorted array that doesn't contain any duplicates
      */
-    public static int[] unsorted(int n, int max) {
-        if (n > max) throw new IllegalArgumentException();
+    public static int[] unsorted(int n, int min, int max) {
+        if (n > max - min) throw new IllegalArgumentException("The length of the array can't be longer than max - min");
         Set<Integer> generated = new LinkedHashSet<>();
         int[] array = new int[n];
 
         while (generated.size() < n) {
-            Integer next = RND.nextInt(max);
+            Integer next = RND.nextInt(min, max);
             generated.add(next);
         }
 
@@ -98,12 +98,12 @@ public class ArrayGenerator {
      * @param max the maximum value of the elements
      * @return an unsorted array that can contain duplicates
      */
-    public static int[] unsortedDup(int n, int max) {
+    public static int[] unsortedDup(int n, int min, int max) {
         List<Integer> generated = new ArrayList<>();
         int[] array = new int[n];
 
         while (generated.size() < n) {
-            Integer next = RND.nextInt(max);
+            Integer next = RND.nextInt(min, max);
             generated.add(next);
         }
 
@@ -115,9 +115,13 @@ public class ArrayGenerator {
         return array;
     }
 
-    public static int[] linearArray(int length) {
+    public static int[] linearArray(int length){
+        return linearArray(0, length);
+    }
+
+    public static int[] linearArray(int startValue, int length) {
         int[] array = new int[length];
-        for (int i = 0; i < length; i++) {
+        for (int i = startValue; i < startValue + length; i++) {
             array[i] = i;
         }
         return array;
@@ -132,21 +136,5 @@ public class ArrayGenerator {
             array[i] = temp;
         }
         return array;
-    }
-
-    public static void insert_key_sorted(int[] array, int key) {
-        boolean inserted = false;
-        int i = 0;
-        while (!inserted) {
-            if (array[i++] >= key) {
-                array[--i] = key;
-                inserted = true;
-            }
-        }
-    }
-
-    public static void insert_key_unsorted(int[] array, int key) {
-        int index = RND.nextInt(array.length - 1);
-        array[index] = key;
     }
 }

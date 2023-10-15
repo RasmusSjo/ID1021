@@ -1,4 +1,4 @@
-package double_linked_list;
+package doubly_linked_list;
 
 import java.util.Random;
 
