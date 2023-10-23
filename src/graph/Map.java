@@ -6,18 +6,13 @@ import java.io.IOException;
 
 public class Map {
 
-    private final int hashMod = 541;
-
-    private City[] citiesHash;
-    private int numOfCities;
-    private int numOfConnections;
+    private final int MODULO = 541;
+    private City[] cities;
 
     public Map(String fileName) {
 
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
-            citiesHash = new City[hashMod];
-            numOfCities = 0;
-            numOfConnections = 0;
+            cities = new City[MODULO];
 
             String line;
             while ((line = br.readLine()) != null) {
@@ -34,7 +29,6 @@ public class Map {
                 // Add connection to both cities
                 from.addConnection(to, minutes);
                 to.addConnection(from, minutes);
-                numOfConnections++;
             }
         }
         catch (IOException e) {
@@ -46,31 +40,27 @@ public class Map {
     public void addCity(City city) {
         int hashIndex = getHashCode(city.name);
 
-        int collisions = 0;
         // If there is a collision, go to the next index
         while (collision(hashIndex)) {
             hashIndex++;
-            collisions++;
         }
 
-//        System.out.println(collisions);
-        citiesHash[hashIndex] = city;
-        numOfCities++;
+        cities[hashIndex] = city;
     }
 
     public City getCity(String name) {
         int hashIndex = getHashCode(name);
 
         // If the city being looked at is null, the city hasn't been added to the array of cities
-        while (citiesHash[hashIndex] != null && !citiesHash[hashIndex].name.equals(name)) {
+        while (cities[hashIndex] != null && !cities[hashIndex].name.equals(name)) {
             hashIndex++;
             // Keep the hash index in bounds
-            if (hashIndex >= hashMod) {
+            if (hashIndex >= MODULO) {
                 hashIndex = 0;
             }
         }
 
-        return citiesHash[hashIndex];
+        return cities[hashIndex];
     }
 
     private City lookup(String name) {
@@ -88,13 +78,13 @@ public class Map {
     private int getHashCode(String name) {
         int hash = 0;
         for (int i = 0; i < name.length(); i++) {
-            hash = (hash * 31 % hashMod) + name.charAt(i);
+            hash = (hash * 31 % MODULO) + name.charAt(i);
         }
-        return hash % hashMod;
+        return hash % MODULO;
     }
 
     private boolean collision(int index) {
-        return citiesHash[index] != null;
+        return cities[index] != null;
     }
 
     public static void main(String[] args) {

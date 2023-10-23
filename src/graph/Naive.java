@@ -12,7 +12,7 @@ public class Naive {
         Integer shortest = null;
 
         for (Connection neighbor : from.neighbors) {
-            Integer time = shortest(neighbor.to, destination, max - neighbor.minutes);
+            Integer time = shortest(neighbor.city, destination, max - neighbor.minutes);
 
             if (time != null) {
                 time += neighbor.minutes;
@@ -29,7 +29,7 @@ public class Naive {
     }
 
     public static void main(String[] args) {
-        args = new String[]{"Göteborg", "Umeå", "707"};
+        args = new String[]{"Umeå", "Göteborg", "707"};
 
         Map map = new Map("src/graph/trains.csv");
 

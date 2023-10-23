@@ -2,13 +2,11 @@ package graph;
 
 public class Connection {
 
-    public City from;
-    public City to;
+    public City city;
     public int minutes;
 
-    public Connection(City from, City to, int minutes) {
-        this.from = from;
-        this.to = to;
+    public Connection(City city, int minutes) {
+        this.city = city;
         this.minutes = minutes;
     }
 }
