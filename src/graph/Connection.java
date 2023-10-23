@@ -4,11 +4,11 @@ public class Connection {
 
     public City from;
     public City to;
-    public int distance;
+    public int minutes;
 
-    public Connection(City from, City to, int distance) {
+    public Connection(City from, City to, int minutes) {
         this.from = from;
         this.to = to;
-        this.distance = distance;
+        this.minutes = minutes;
     }
 }
