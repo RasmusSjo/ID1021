@@ -7,6 +7,7 @@ public class LatexHelper {
 
     private final static int prefix = 1000;
     private final static int precision = 2;
+    private static final int DATA_SPACE = 10;
 
     /**
      * Takes in a 2-dimensional array with benchmark result and returns
@@ -82,15 +83,18 @@ public class LatexHelper {
 
         StringBuilder stringBuilder = new StringBuilder();
 
+        // int spaceLength = String.valueOf((int) data[data.length - 1][0]).length();
+        int spaceLength = 10;
+
         for (double[] row : data) {
             for (int column = 0; column < row.length; column++) {
                 if (contains(colsToIgnore, column)) {
-                    stringBuilder.append((int) row[column]).append(" ");
+                    stringBuilder.append(String.format("%" + spaceLength + "d", (int) row[column]));
                 } else {
-                    stringBuilder.append(formatNumber(row[column])).append(" ");
+                    stringBuilder.append(formatNumber(row[column]));
                 }
             }
-            stringBuilder.replace(stringBuilder.length() - 1, stringBuilder.length(), "\n");
+            stringBuilder.append("\n");
         }
 
         return stringBuilder.toString();
@@ -148,7 +152,7 @@ public class LatexHelper {
                 }
             }
         }
-        return result.toString();
+        return String.format("%1$" + DATA_SPACE + "s", result);
     }
 
     private static int numOfDigits(char[] number) {
