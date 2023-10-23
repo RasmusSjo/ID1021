@@ -2,6 +2,7 @@ package utils;
 
 import binary_tree.BinaryTree;
 import doubly_linked_list.*;
+import hash.*;
 import priority_queue.*;
 import heap.*;
 import single_linked_list.ArrayList;
@@ -9,6 +10,8 @@ import single_linked_list.*;
 import sorted_data.Search;
 import sorting.ArraySorter;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -115,6 +118,51 @@ public class Benchmarker {
                 sizes = new int[]{10,100, 200, 400, 1000, 2000, 4000, 10000};
                 iterations = 1000;
             }
+            case 13 -> {
+                fileName = "hashLinBin";
+                columnNames = new String[]{
+                        "Zip code",
+                        "Linear (String)",
+                        "Binary (String)",
+                        "Linear (int)",
+                        "Binary (int)",
+                };
+                rowsToIgnore = new int[]{0};
+                sizes = new int[]{0, 0};
+                iterations = 1000;
+            }
+            case 14 -> {
+                fileName = "hash4";
+                columnNames = new String[]{
+                        "Zip codes searched",
+                        "Zip string - linear",
+                        "Zip string - binary",
+                        "Zip int - linear",
+                        "Zip int - binary",
+                        "Hash (no hashing) - lookup",
+                        "Hash (hashing) - lookup",
+                        "Hash (improved) - lookup"
+                };
+                rowsToIgnore = new int[]{0};
+
+                sizes = new int[]{10, 20, 40, 100};
+//                sizes = new int[]{200, 400, 1000};
+//                sizes = new int[]{2000, 4000, 10000};
+//                sizes = new int[]{10, 20, 40, 100,200, 400, 1000};
+                iterations = 5000; // Change number of iterations depending on the sizes used
+            }
+            case 15 -> {
+                fileName = "hash_collisions";
+                columnNames = new String[]{
+                        "Zip codes searched",
+                        "Collisions (bucket)",
+                        "Collisions (improved)"
+                };
+                rowsToIgnore = new int[]{0,1,2};
+
+                sizes = new int[]{10, 20, 40, 100, 200, 400, 1000, 2000, 4000, 10000};
+                iterations = 1;
+            }
         }
     }
 
@@ -132,6 +180,9 @@ public class Benchmarker {
             case 10 -> linkedHeapTime();
             case 11 -> linkedHeapDepth();
             case 12 -> queueComparison();
+            case 13 -> hashLinearBinary();
+            case 14 -> hash();
+            case 15 -> hashCollisions();
             default -> throw new IllegalStateException("Unexpected value: " + assignmentNumber);
         };
     }
@@ -767,14 +818,310 @@ public class Benchmarker {
             benchmark[size][2] = arrayTime;
             benchmark[size][3] = unsortedTime;
             benchmark[size][4] = sortedTime;
+        }
 
+        return benchmark;
+    }
+
+    private static double[][] hashLinearBinary() {
+        String fileName = "src/hash/postnummer.csv";
+
+        int rowLength = columnNames.length;
+        int columnLength = sizes.length;
+        // Array to store the benchmark data
+        double[][] benchmark = new double[columnLength][rowLength];
+
+        ZipString zipString = new ZipString(fileName);
+        ZipInt zipInt = new ZipInt(fileName);
+
+        long startTime, endTime, elapsedTime;
+        double zipStrLinTime, zipStrBinTime, zipIntLinTime, zipIntBinTime;
+
+        String[] strKeys = new String[]{"111 15", "984 99"};
+
+        int row = 0;
+        for (String key : strKeys) {
+
+            zipStrLinTime = zipStrBinTime = Double.POSITIVE_INFINITY;
+            zipIntLinTime = zipIntBinTime = Double.POSITIVE_INFINITY;
+
+            int intKey = Integer.parseInt(key.replaceAll("\\s",""));
+
+            for (int i = 0; i < iterations; i++) {
+
+                startTime = System.nanoTime();
+                zipString.linear(key);
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                zipStrLinTime = elapsedTime < zipStrLinTime ? elapsedTime : zipStrLinTime;
+
+                startTime = System.nanoTime();
+                zipString.binary(key);
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                zipStrBinTime = elapsedTime < zipStrBinTime ? elapsedTime : zipStrBinTime;
+
+
+                startTime = System.nanoTime();
+                zipInt.linear(intKey);
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                zipIntLinTime = elapsedTime < zipIntLinTime ? elapsedTime : zipIntLinTime;
+
+                startTime = System.nanoTime();
+                zipInt.binary(intKey);
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                zipIntBinTime = elapsedTime < zipIntBinTime ? elapsedTime : zipIntBinTime;
+            }
+
+            System.out.println("Zip string version - linear search for " + key + " values: " + zipStrLinTime);
+            System.out.println("Zip string version - binary search for " + key + " values: " + zipStrBinTime);
+            System.out.println("Zip int version - linear search for " + intKey + " values: " + zipIntLinTime);
+            System.out.println("Zip int version - binary search for " + intKey + " values: " + zipIntBinTime);
+            System.out.println();
+
+            benchmark[row][0] = intKey;
+            benchmark[row][1] = zipStrLinTime;
+            benchmark[row][2] = zipStrBinTime;
+            benchmark[row][3] = zipIntLinTime;
+            benchmark[row++][4] = zipIntBinTime;
+        }
+
+        return benchmark;
+    }
+
+    private static double[][] hash() {
+        int keysSize = 0;
+        String[] keys = new String[10000];
+        String fileName = "src/hash/postnummer.csv";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            int i = 0;
+            while ((line = br.readLine()) != null) {
+                String[] row = line.split(",");
+                keys[i++] = row[0];
+            }
+            keysSize = i - 1;
+        } catch (Exception e) {
+            System.out.println(" file " + fileName + " not found");
+        }
+
+        int rowLength = columnNames.length;
+        int columnLength = sizes.length;
+        // Array to store the benchmark data
+        double[][] benchmark = new double[columnLength][rowLength];
+
+        ZipString zipString = new ZipString(fileName);
+        ZipInt zipInt = new ZipInt(fileName);
+        Hash hashBad = new Hash(fileName);
+        HashBuckets hash = new HashBuckets(fileName, 100000);
+        HashImproved hashImproved = new HashImproved(fileName, 100000);
+
+        long startTime, endTime, elapsedTime;
+        double zipStrLinTime, zipStrBinTime, zipIntLinTime, zipIntBinTime, hashLargeTime, hashStdTime, hashImprovedTime;
+
+        int[] randomIndices;
+        int[] intKeys;
+        String[] strKeys;
+
+        int row = 0;
+        for (int size : sizes) {
+
+            zipStrLinTime = zipStrBinTime = Double.POSITIVE_INFINITY;
+            zipIntLinTime = zipIntBinTime = Double.POSITIVE_INFINITY;
+            hashLargeTime = Double.POSITIVE_INFINITY;
+            hashStdTime = Double.POSITIVE_INFINITY;
+            hashImprovedTime = Double.POSITIVE_INFINITY;
+
+            for (int i = 0; i < iterations; i++) {
+                randomIndices = ArrayGenerator.unsortedDup(size, 0, keysSize);
+                intKeys = new int[size];
+                strKeys = new String[size];
+
+                int j = 0;
+                for (int index : randomIndices) {
+                    intKeys[j] = Integer.parseInt(keys[index].replaceAll("\\s", ""));
+                    strKeys[j++] = keys[index];
+                }
+
+                startTime = System.nanoTime();
+                for (String key : strKeys) {
+                    zipString.linear(key);
+                }
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                zipStrLinTime = elapsedTime < zipStrLinTime ? elapsedTime : zipStrLinTime;
+
+                startTime = System.nanoTime();
+                for (String key : strKeys) {
+                    zipString.binary(key);
+                }
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                zipStrBinTime = elapsedTime < zipStrBinTime ? elapsedTime : zipStrBinTime;
+
+
+                startTime = System.nanoTime();
+                for (int key : intKeys) {
+                    zipInt.linear(key);
+                }
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                zipIntLinTime = elapsedTime < zipIntLinTime ? elapsedTime : zipIntLinTime;
+
+                startTime = System.nanoTime();
+                for (int key : intKeys) {
+                    zipInt.binary(key);
+                }
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                zipIntBinTime = elapsedTime < zipIntBinTime ? elapsedTime : zipIntBinTime;
+
+                startTime = System.nanoTime();
+                for (int key : intKeys) {
+                    hashBad.lookup(key);
+                }
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                hashLargeTime = elapsedTime < hashLargeTime ? elapsedTime : hashLargeTime;
+
+                startTime = System.nanoTime();
+                for (int key : intKeys) {
+                    hash.lookup(key);
+                }
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                hashStdTime = elapsedTime < hashStdTime ? elapsedTime : hashStdTime;
+
+                startTime = System.nanoTime();
+                for (int key : intKeys) {
+                    hashImproved.lookup(key);
+                }
+                endTime = System.nanoTime();
+                elapsedTime = endTime - startTime;
+                hashImprovedTime = elapsedTime < hashImprovedTime ? elapsedTime : hashImprovedTime;
+            }
+
+            System.out.println("Zip string version - linear search for " + size + " values: " + zipStrLinTime);
+            System.out.println("Zip string version - binary search for " + size + " values: " + zipStrBinTime);
+            System.out.println("Zip int version - linear search for " + size + " values: " + zipIntLinTime);
+            System.out.println("Zip int version - binary search for " + size + " values: " + zipIntBinTime);
+            System.out.println("Hash simple version - lookup for " + size + " values: " + hashLargeTime);
+            System.out.println("Hash std version - lookup for " + size + " values: " + hashStdTime);
+            System.out.println("Hash improved version - lookup for " + size + " values: " + hashImprovedTime);
+            System.out.println();
+
+            benchmark[row][0] = size;
+            benchmark[row][1] = zipStrLinTime;
+            benchmark[row][2] = zipStrBinTime;
+            benchmark[row][3] = zipIntLinTime;
+            benchmark[row][4] = zipIntBinTime;
+            benchmark[row][5] = hashLargeTime;
+            benchmark[row][6] = hashStdTime;
+            benchmark[row++][7] = hashImprovedTime;
+        }
+
+        return benchmark;
+    }
+
+    private static double[][] hashCollisions() {
+        int keysSize = 0;
+        String[] keys = new String[10000];
+        String fileName = "src/hash/postnummer.csv";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            int i = 0;
+            while ((line = br.readLine()) != null) {
+                String[] row = line.split(",");
+                keys[i++] = row[0];
+            }
+            keysSize = i - 1;
+        } catch (Exception e) {
+            System.out.println(" file " + fileName + " not found");
+        }
+
+        int rowLength = columnNames.length;
+        int columnLength = sizes.length;
+        // Array to store the benchmark data
+        double[][] benchmark = new double[columnLength][rowLength];
+
+        HashBuckets hashBucket = new HashBuckets(fileName, 19412);
+        HashImproved hashImproved = new HashImproved(fileName, 58625);
+
+        int[] randomIndices;
+        int[] intKeys;
+
+        int row = 0;
+        for (int size : sizes) {
+
+            int collisionsBucket = 0;
+            int collisionsImproved = 0;
+
+            for (int i = 0; i < iterations; i++) {
+                randomIndices = ArrayGenerator.unsortedDup(size, 0, keysSize);
+                intKeys = new int[size];
+
+                int j = 0;
+                for (int index : randomIndices) {
+                    intKeys[j++] = Integer.parseInt(keys[index].replaceAll("\\s", ""));
+                }
+
+                int[] collisionsBucketTable = new int[10];
+                for (int key : intKeys) {
+                    int collision = hashBucket.lookup(key);
+                    if (collision >= collisionsBucketTable.length) {
+                        int[] temp = new int[collision + 10];
+                        System.arraycopy(collisionsBucketTable, 0, temp, 0, collisionsBucketTable.length);
+                        collisionsBucketTable = temp;
+                    }
+                    collisionsBucketTable[collision]++;
+                    collisionsBucket += (collision);
+                }
+
+                int[] collisionsImprovedTable = new int[10];
+                for (int key : intKeys) {
+                    int collision = hashImproved.lookup(key);
+                    if (collision >= collisionsImprovedTable.length) {
+                        int[] temp = new int[collision + 10];
+                        System.arraycopy(collisionsImprovedTable, 0, temp, 0, collisionsImprovedTable.length);
+                        collisionsImprovedTable = temp;
+                    }
+                    collisionsImprovedTable[collision]++;
+                    collisionsImproved += (collision);
+                }
+
+                System.out.println();
+                System.out.println("Zip codes searched: " + size);
+                int num = 0;
+                for (int i1 : collisionsBucketTable) {
+                    System.out.println(num++ + " collisions: " + i1);
+                }
+                System.out.println("Number of collisions in hash bucket: " + collisionsBucket);
+                System.out.println();
+
+                num = 0;
+                for (int i1 : collisionsImprovedTable) {
+                    System.out.println(num++ + " collisions: " + i1);
+                }
+                System.out.println("Number of collisions in hash improved: " + collisionsImproved);
+                System.out.println();
+
+            }
+
+
+            benchmark[row][0] = size;
+            benchmark[row][1] = collisionsBucket;
+            benchmark[row++][2] = collisionsImproved;
         }
 
         return benchmark;
     }
 
     public static void main(String[] args) {
-        int assignmentNumber = 12;
+        int assignmentNumber = 15;
 
         setupBench(assignmentNumber);
 
