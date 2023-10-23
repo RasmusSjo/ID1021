@@ -201,9 +201,9 @@ public class Benchmarker {
             int arraySize = sizes[size];
 
             int numOfKeys = 100;
-            int[] keys = ArrayGenerator.unsorted(numOfKeys, 0, arraySize);
+            int[] keys = ArrayGenerator.unsortedNoDup(numOfKeys, 0, arraySize);
 
-            int[] unsortedArray = ArrayGenerator.unsorted(arraySize);
+            int[] unsortedArray = ArrayGenerator.unsortedNoDup(arraySize);
             int[] sortedArray = Arrays.copyOf(unsortedArray, unsortedArray.length);
             ArraySorter.mergeSort(sortedArray);
 
@@ -217,7 +217,7 @@ public class Benchmarker {
             // The arrays are switched every 10 iterations to randomize things a bit.
             for (int i = 0; i < iterations; i++) {
                 if (i % 10 == 0) {
-                    unsortedArray = ArrayGenerator.unsorted(arraySize);
+                    unsortedArray = ArrayGenerator.unsortedNoDup(arraySize);
                     sortedArray = Arrays.copyOf(unsortedArray, unsortedArray.length);
                     ArraySorter.mergeSort(sortedArray);
                 }
@@ -274,7 +274,7 @@ public class Benchmarker {
             minTime4 = Double.POSITIVE_INFINITY;
 
             for (int i = 0; i < iterations; i++) {
-                array1 = ArrayGenerator.unsorted(sizes[size]);
+                array1 = ArrayGenerator.unsortedNoDup(sizes[size]);
                 ArraySorter.quickSort(array1, 0, array1.length - 1);
                 int[] array2 = Arrays.copyOf(array1, array1.length);
                 int[] array3 = Arrays.copyOf(array1, array1.length);
@@ -529,7 +529,7 @@ public class Benchmarker {
                 arrays = new int[benchSize][sizes[size]];
                 arrays2 = new int[benchSize][sizes[size]];
                 for (int j = 0; j < arrays.length; j++) {
-                    arrays[j] = ArrayGenerator.unsorted(sizes[size]);
+                    arrays[j] = ArrayGenerator.unsortedNoDup(sizes[size]);
                     arrays2[j] = Arrays.copyOf(arrays[j], arrays[j].length);
                 }
 
@@ -599,7 +599,7 @@ public class Benchmarker {
 
             for (int i = 0; i < iterations; i++) {
                 // Generate a new array
-                array = ArrayGenerator.unsorted(sizes[size]);
+                array = ArrayGenerator.unsortedNoDup(sizes[size]);
 
                 // Measure the time it takes to sort 'benchSize' number of LinkedLists
                 time = System.nanoTime();
@@ -664,7 +664,7 @@ public class Benchmarker {
 
             for (int i = 0; i < iterations; i++) {
                 // Constant size of the heap for this benchmark
-                array = ArrayGenerator.unsorted(heapSize, 0, 10000);
+                array = ArrayGenerator.unsortedNoDup(heapSize, 0, 10000);
                 increments = ArrayGenerator.unsortedDup(sizes[size], 10, 100);
 
                 for (int value : array) {
@@ -716,7 +716,7 @@ public class Benchmarker {
 
         int[] array, increments;
 
-        array = ArrayGenerator.unsorted(heapSize, 0, 10000);
+        array = ArrayGenerator.unsortedNoDup(heapSize, 0, 10000);
         increments = ArrayGenerator.unsortedDup(sizes[0], 10, 100);
 
         for (int value : array) {
@@ -760,7 +760,7 @@ public class Benchmarker {
             arrayHeap = new ArrayHeap(sizes[size]);
 
             for (int i = 0; i < iterations; i++) {
-                array = ArrayGenerator.unsorted(sizes[size]);
+                array = ArrayGenerator.unsortedNoDup(sizes[size]);
 
                 startTime = System.nanoTime();
                 for (int value : array) {

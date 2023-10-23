@@ -47,7 +47,7 @@ public class ArrayGenerator {
      * @param n the length of the array
      * @return an unsorted array that doesn't contain any duplicates
      */
-    public static int[] unsorted(int n) {
+    public static int[] unsortedNoDup(int n) {
         Set<Integer> generated = new LinkedHashSet<>();
         int[] array = new int[n];
 
@@ -69,10 +69,11 @@ public class ArrayGenerator {
      * The max value of the elements is max.
      *
      * @param n the length of the array
+     * @param min the minimum value of the elements
      * @param max the maximum value of the elements
      * @return an unsorted array that doesn't contain any duplicates
      */
-    public static int[] unsorted(int n, int min, int max) {
+    public static int[] unsortedNoDup(int n, int min, int max) {
         if (n > max - min) throw new IllegalArgumentException("The length of the array can't be longer than max - min");
         Set<Integer> generated = new LinkedHashSet<>();
         int[] array = new int[n];
@@ -92,9 +93,10 @@ public class ArrayGenerator {
 
     /**
      * Creates an unsorted array of length n that can contain duplicates.
-     * The max value of the elements is max.
+     * The min value of the elements is min and the max value is max.
      *
      * @param n the length of the array
+     * @param min the minimum value of the elements
      * @param max the maximum value of the elements
      * @return an unsorted array that can contain duplicates
      */
@@ -119,10 +121,11 @@ public class ArrayGenerator {
         return linearArray(0, length);
     }
 
-    public static int[] linearArray(int startValue, int length) {
+    public static int[] linearArray(int startValue, int endValue) {
+        int length = endValue - startValue;
         int[] array = new int[length];
-        for (int i = startValue; i < startValue + length; i++) {
-            array[i] = i;
+        for (int i = 0, j = startValue; i < length; i++) {
+            array[i] = j++;
         }
         return array;
     }
