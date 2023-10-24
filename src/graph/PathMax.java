@@ -23,19 +23,19 @@ public class PathMax {
         path[next++] = from;
 
         Integer shortest;
-        for (Connection neighbor : from.neighbors) {
+        for (Connection neighbour : from.neighbours) {
             Integer timeLeft;
             if (max != null) {
-                timeLeft = max - neighbor.minutes;
+                timeLeft = max - neighbour.minutes;
             }
             else {
                 timeLeft = max;
             }
 
-            shortest = shortest(neighbor.city, destination, timeLeft);
+            shortest = shortest(neighbour.city, destination, timeLeft);
 
             if (shortest != null) {
-                shortest += neighbor.minutes;
+                shortest += neighbour.minutes;
                 if (max == null) {
                     max = shortest;
                 }

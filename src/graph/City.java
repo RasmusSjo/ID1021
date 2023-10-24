@@ -3,18 +3,18 @@ package graph;
 public class City {
 
     public String name;
-    public Connection[] neighbors;
+    public Connection[] neighbours;
 
 
     public City(String name) {
         this.name = name;
-        neighbors = new Connection[0];
+        neighbours = new Connection[0];
     }
 
-    public void addConnection(City neighbor, int distance) {
-        Connection[] temp = new Connection[neighbors.length + 1];
-        System.arraycopy(neighbors, 0, temp, 0, neighbors.length);
-        neighbors = temp;
-        neighbors[neighbors.length - 1] = new Connection(neighbor, distance);
+    public void addConnection(City neighbour, int distance) {
+        Connection[] temp = new Connection[neighbours.length + 1];
+        System.arraycopy(neighbours, 0, temp, 0, neighbours.length);
+        neighbours = temp;
+        neighbours[neighbours.length - 1] = new Connection(neighbour, distance);
     }
 }

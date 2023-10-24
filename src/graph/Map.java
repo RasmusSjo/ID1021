@@ -71,10 +71,10 @@ public class Map {
 
         for (int i = 0; i < cities.size(); i++) {
             City city = cities.get(i);
-            for (int j = 0; j < city.neighbors.length; j++) {
-                Connection neighbor = city.neighbors[j];
-                if (!cities.contains(neighbor.city)) {
-                    cities.add(neighbor.city);
+            for (int j = 0; j < city.neighbours.length; j++) {
+                Connection neighbour = city.neighbours[j];
+                if (!cities.contains(neighbour.city)) {
+                    cities.add(neighbour.city);
                 }
             }
         }

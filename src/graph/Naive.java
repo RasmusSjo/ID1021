@@ -11,11 +11,11 @@ public class Naive {
 
         Integer shortest = null;
 
-        for (Connection neighbor : from.neighbors) {
-            Integer time = shortest(neighbor.city, destination, max - neighbor.minutes);
+        for (Connection neighbour : from.neighbours) {
+            Integer time = shortest(neighbour.city, destination, max - neighbour.minutes);
 
             if (time != null) {
-                time += neighbor.minutes;
+                time += neighbour.minutes;
                 if (shortest != null) {
                     if (time < shortest) shortest = time;
                 }
@@ -29,13 +29,11 @@ public class Naive {
     }
 
     public static void main(String[] args) {
-        args = new String[]{"Umeå", "Göteborg", "707"};
-
         Map map = new Map("src/graph/trains.csv");
 
-        String from = args[0];
-        String to = args[1];
-        Integer max = Integer.valueOf(args[2]);
+        String from = "Umeå";
+        String to = "Göteborg";
+        Integer max = 707;
 
         long t0 = System.nanoTime();
         Integer dist = shortest(map.getCity(from), map.getCity(to), max);

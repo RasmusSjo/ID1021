@@ -21,11 +21,11 @@ public class Path {
         path[next++] = from;
 
         Integer shortest = null;
-        for (Connection neighbor : from.neighbors) {
-            Integer time = shortest(neighbor.city, destination);
+        for (Connection neighbour : from.neighbours) {
+            Integer time = shortest(neighbour.city, destination);
 
             if (time != null) {
-                time += neighbor.minutes;
+                time += neighbour.minutes;
                 if (shortest != null) {
                     if (time < shortest) {
                         shortest = time;
