@@ -2,6 +2,7 @@ package utils;
 
 import binary_tree.BinaryTree;
 import doubly_linked_list.*;
+import graph.*;
 import hash.*;
 import priority_queue.*;
 import heap.*;
@@ -12,6 +13,7 @@ import sorting.ArraySorter;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -163,6 +165,31 @@ public class Benchmarker {
                 sizes = new int[]{10, 20, 40, 100, 200, 400, 1000, 2000, 4000, 10000};
                 iterations = 1;
             }
+            case 16 -> {
+                fileName = "naive";
+                columnNames = new String[]{
+                        "City - City",
+                        "Distance (minutes)",
+                        "Runtime"
+                };
+                rowsToIgnore = new int[]{0,1,2};
+
+                sizes = new int[]{};
+                iterations = 1;
+            }
+            case 17 -> {
+                fileName = "path";
+                columnNames = new String[]{
+                        "City - City",
+                        "Distance (minutes)",
+                        "Runtime"
+                };
+                rowsToIgnore = new int[]{0,1,2};
+
+                sizes = new int[]{};
+                iterations = 1;
+            }
+
         }
     }
 
@@ -183,6 +210,8 @@ public class Benchmarker {
             case 13 -> hashLinearBinary();
             case 14 -> hash();
             case 15 -> hashCollisions();
+            case 16 -> naive();
+            case 17 -> path_table();
             default -> throw new IllegalStateException("Unexpected value: " + assignmentNumber);
         };
     }
@@ -1120,8 +1149,82 @@ public class Benchmarker {
         return benchmark;
     }
 
+    private static double[][] naive() {
+        String fileName = "src/graph/trains.csv";
+        Map map = new Map(fileName);
+
+        String[] fromCities = new String[]{
+                "Malmö",
+                "Göteborg",
+                "Malmö",
+                "Stockholm",
+                "Stockholm",
+                "Göteborg",
+                "Sundsvall",
+                "Umeå",
+                "Göteborg"
+        };
+        String[] toCities = new String[]{
+                "Göteborg",
+                "Stockholm",
+                "Stockholm",
+                "Sundsvall",
+                "Umeå",
+                "Sundsvall",
+                "Umeå",
+                "Göteborg",
+                "Umeå"
+        };
+        Integer max = 1000;
+
+
+        for (int i = 0; i < fromCities.length; i++) {
+            int minMaxValue = 100;
+
+            String from = fromCities[i];
+            String to = toCities[i];
+
+            Integer dist;
+            long t0 = System.nanoTime();
+            while ((dist = Naive.shortest(map.getCity(from), map.getCity(to), minMaxValue)) == null) {
+                minMaxValue += 100;
+            }
+            long time = (System.nanoTime() - t0) / 1_000_000;
+
+            System.out.println(from + " — " + to);
+            System.out.println("Shortest: " + dist + " min, max value used: " + minMaxValue + " (" + time + " ms)");
+            System.out.println();
+        }
+
+        return new double[][]{{}};
+    }
+
+    private static double[][] path_table() {
+        String fileName = "src/graph/trains.csv";
+        Map map = new Map(fileName);
+        PathMax path = new PathMax();
+
+        String fromName = "Malmö";
+        City from = map.getCity(fromName);
+
+        java.util.ArrayList<City> cities = map.getCities(fromName);
+
+        System.out.println("Distance from Malmö:");
+        for (City to : cities) {
+
+            Integer dist;
+            long t0 = System.nanoTime();
+            dist = path.shortest(from, to, null);
+            long time = (System.nanoTime() - t0) / 1_000_000;
+
+            System.out.printf("%-15s %4d min (" + time + " ms)\n", to.name + ":", dist);
+        }
+
+        return new double[][]{{}};
+    }
+
     public static void main(String[] args) {
-        int assignmentNumber = 15;
+        int assignmentNumber = 17;
 
         setupBench(assignmentNumber);
 
