@@ -3,6 +3,7 @@ package graph;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Map {
 
@@ -61,6 +62,26 @@ public class Map {
         }
 
         return cities[hashIndex];
+    }
+
+    public ArrayList<City> getCities(String name) {
+        City from = getCity(name);
+        ArrayList<City> cities = new ArrayList<>();
+        cities.add(from);
+
+        for (int i = 0; i < cities.size(); i++) {
+            City city = cities.get(i);
+            for (int j = 0; j < city.neighbors.length; j++) {
+                Connection neighbor = city.neighbors[j];
+                if (!cities.contains(neighbor.city)) {
+                    cities.add(neighbor.city);
+                }
+            }
+        }
+
+        // Remove initial city from list
+        cities.remove(0);
+        return cities;
     }
 
     private City lookup(String name) {
