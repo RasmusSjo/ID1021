@@ -13,7 +13,6 @@ import sorting.ArraySorter;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -168,16 +167,27 @@ public class Benchmarker {
             case 16 -> {
                 fileName = "naive";
                 columnNames = new String[]{
-                        "City - City",
                         "Distance (minutes)",
+                        "Max value",
                         "Runtime"
                 };
-                rowsToIgnore = new int[]{0,1,2};
+                rowsToIgnore = new int[]{0, 1};
 
                 sizes = new int[]{};
                 iterations = 1;
             }
-            case 17 -> {
+            case 17, 18 ->{
+                fileName = "path_max";
+                columnNames = new String[]{
+                        "Distance (minutes)",
+                        "Runtime"
+                };
+                rowsToIgnore = new int[]{0};
+
+                sizes = new int[]{};
+                iterations = 10;
+            }
+            case 19 -> {
                 fileName = "path";
                 columnNames = new String[]{
                         "City - City",
@@ -187,7 +197,7 @@ public class Benchmarker {
                 rowsToIgnore = new int[]{0,1,2};
 
                 sizes = new int[]{};
-                iterations = 1;
+                iterations = 10;
             }
 
         }
@@ -211,7 +221,9 @@ public class Benchmarker {
             case 14 -> hash();
             case 15 -> hashCollisions();
             case 16 -> naive();
-            case 17 -> path_table();
+            case 17 -> path();
+            case 18 -> pathMax();
+            case 19 -> path_table();
             default -> throw new IllegalStateException("Unexpected value: " + assignmentNumber);
         };
     }
@@ -1154,6 +1166,69 @@ public class Benchmarker {
         Map map = new Map(fileName);
 
         String[] fromCities = new String[]{
+//                "Malmö",
+//                "Göteborg",
+//                "Malmö",
+//                "Stockholm",
+//                "Stockholm",
+//                "Göteborg",
+//                "Sundsvall",
+//                "Umeå",
+                "Göteborg"
+        };
+        String[] toCities = new String[]{
+//                "Göteborg",
+//                "Stockholm",
+//                "Stockholm",
+//                "Sundsvall",
+//                "Umeå",
+//                "Sundsvall",
+//                "Umeå",
+//                "Göteborg",
+                "Umeå"
+        };
+
+        int rowLength = columnNames.length;
+        double[][] benchmark = new double[fromCities.length][rowLength];
+
+        for (int i = 0; i < fromCities.length; i++) {
+            double minTime = Double.POSITIVE_INFINITY;
+
+            City from = map.getCity(fromCities[i]);
+            City to = map.getCity(toCities[i]);
+
+            Integer dist = 0;
+            int maxValue = 800;
+
+            for (int iter = 0; iter < iterations; iter++) {
+
+                long time = System.nanoTime();
+                dist = Naive.shortest(from, to, maxValue);
+                time = (System.nanoTime() - time);
+                minTime = time < minTime ? time : minTime;
+            }
+
+            System.out.println(from.name + " - " + to.name);
+            System.out.println("Distance: " + dist);
+            System.out.println(minTime);
+            System.out.println();
+
+            dist = dist == null ? 0 : dist;
+
+            benchmark[i][0] = dist;
+            benchmark[i][1] = maxValue;
+            benchmark[i][2] = minTime;
+        }
+
+        return benchmark;
+    }
+
+    private static double[][] path() {
+        String fileName = "src/graph/trains.csv";
+        Map map = new Map(fileName);
+        Path path = new Path();
+
+        String[] fromCities = new String[]{
                 "Malmö",
                 "Göteborg",
                 "Malmö",
@@ -1175,56 +1250,157 @@ public class Benchmarker {
                 "Göteborg",
                 "Umeå"
         };
-        Integer max = 1000;
 
+        int rowLength = columnNames.length;
+        double[][] benchmark = new double[fromCities.length][rowLength];
 
         for (int i = 0; i < fromCities.length; i++) {
-            int minMaxValue = 100;
+            double minTime = Double.POSITIVE_INFINITY;
 
-            String from = fromCities[i];
-            String to = toCities[i];
+            City from = map.getCity(fromCities[i]);
+            City to = map.getCity(toCities[i]);
 
-            Integer dist;
-            long t0 = System.nanoTime();
-            while ((dist = Naive.shortest(map.getCity(from), map.getCity(to), minMaxValue)) == null) {
-                minMaxValue += 100;
+            Integer dist = 0;
+
+            for (int iter = 0; iter < iterations; iter++) {
+
+                long time = System.nanoTime();
+                dist = path.shortest(from, to);
+                time = (System.nanoTime() - time);
+                minTime = time < minTime ? time : minTime;
             }
-            long time = (System.nanoTime() - t0) / 1_000_000;
 
-            System.out.println(from + " — " + to);
-            System.out.println("Shortest: " + dist + " min, max value used: " + minMaxValue + " (" + time + " ms)");
+            System.out.println(from.name + " - " + to.name);
+            System.out.println("Distance: " + dist);
+            System.out.println(minTime / 1000 + " us");
             System.out.println();
+
+
+            benchmark[i][0] = dist;
+            benchmark[i][1] = minTime;
         }
 
-        return new double[][]{{}};
+        return benchmark;
+    }
+
+    private static double[][] pathMax() {
+        String fileName = "src/graph/trains.csv";
+        Map map = new Map(fileName);
+        PathMax pathMax = new PathMax();
+
+        String[] fromCities = new String[]{
+                "Malmö",
+                "Göteborg",
+                "Malmö",
+                "Stockholm",
+                "Stockholm",
+                "Göteborg",
+                "Sundsvall",
+                "Umeå",
+                "Göteborg"
+        };
+        String[] toCities = new String[]{
+                "Göteborg",
+                "Stockholm",
+                "Stockholm",
+                "Sundsvall",
+                "Umeå",
+                "Sundsvall",
+                "Umeå",
+                "Göteborg",
+                "Umeå"
+        };
+
+        int rowLength = columnNames.length;
+        double[][] benchmark = new double[fromCities.length][rowLength];
+
+        for (int i = 0; i < fromCities.length; i++) {
+            double minTime = Double.POSITIVE_INFINITY;
+
+            City from = map.getCity(fromCities[i]);
+            City to = map.getCity(toCities[i]);
+
+            Integer dist = 0;
+
+            for (int iter = 0; iter < iterations; iter++) {
+
+                long time = System.nanoTime();
+                dist = pathMax.shortest(from, to, null);
+                time = (System.nanoTime() - time);
+                minTime = time < minTime ? time : minTime;
+            }
+
+            System.out.println(from.name + " - " + to.name);
+            System.out.println("Distance: " + dist);
+            System.out.println(minTime / 1000 + " us");
+            System.out.println();
+
+
+            benchmark[i][0] = dist;
+            benchmark[i][1] = minTime;
+        }
+
+        return benchmark;
     }
 
     private static double[][] path_table() {
         String fileName = "src/graph/trains.csv";
         Map map = new Map(fileName);
-        PathMax path = new PathMax();
+        Path path = new Path();
+        PathMax pathMax = new PathMax();
 
-        String fromName = "Malmö";
-        City from = map.getCity(fromName);
+        String[] fromCities = new String[]{
+//                "Malmö",
+//                "Göteborg",
+//                "Malmö",
+//                "Stockholm",
+//                "Stockholm",
+//                "Göteborg",
+                "Sundsvall",
+//                "Umeå",
+//                "Göteborg"
+        };
+        String[] toCities = new String[]{
+//                "Göteborg",
+//                "Stockholm",
+//                "Stockholm",
+//                "Sundsvall",
+//                "Umeå",
+//                "Sundsvall",
+                "Umeå",
+//                "Göteborg",
+//                "Umeå"
+        };
 
-        java.util.ArrayList<City> cities = map.getCities(fromName);
-
-        System.out.println("Distance from Malmö:");
-        for (City to : cities) {
+        int j = 0;
+        for (String fromName : fromCities) {
+            City from = map.getCity(fromName);
+            City to = map.getCity(toCities[j++]);
 
             Integer dist;
             long t0 = System.nanoTime();
-            dist = path.shortest(from, to, null);
-            long time = (System.nanoTime() - t0) / 1_000_000;
+            dist = Naive.shortest(from, to, 200);
+            long time1 = (System.nanoTime() - t0);
 
-            System.out.printf("%-15s %4d min (" + time + " ms)\n", to.name + ":", dist);
+            t0 = System.nanoTime();
+            dist = path.shortest(from, to);
+            long time2 = (System.nanoTime() - t0);
+
+            t0 = System.nanoTime();
+            dist = pathMax.shortest(from, to, 200);
+            long time3 = (System.nanoTime() - t0);
+
+
+            System.out.println("Distance from " + from.name + " - " + to.name + ": " + dist);
+            System.out.printf("Naive: %d, path: %d, path max: %d",time1, time2, time3);
+            System.out.println("\n");
         }
 
         return new double[][]{{}};
     }
 
     public static void main(String[] args) {
-        int assignmentNumber = 17;
+        int assignmentNumber = 19;
 
         setupBench(assignmentNumber);
 
