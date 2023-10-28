@@ -1,14 +1,11 @@
 package dijkstra;
 
-import graph.PathMax;
-
 import java.util.ArrayList;
 
 public class Dijkstra {
 
     Map map;
     Path[] done;
-    int pathLength;
 
     PriorityQueue queue;
 
@@ -16,7 +13,6 @@ public class Dijkstra {
         map = new Map(fileName);
 
         done = new Path[map.getNumOfCities()];
-        pathLength = 0;
 
         queue = new PriorityQueue();
     }
@@ -33,6 +29,10 @@ public class Dijkstra {
     }
 
     private Path shortestPath(City from, City destination) {
+        // Remove any previously stored paths in the array and queue
+        done = new Path[done.length];
+        queue.clear();
+
         // Create a path of the source destination and
         // add it to the queue and to the done array
         Path source = new Path(from, null, 0, 0);
@@ -46,6 +46,7 @@ public class Dijkstra {
 
             // If the current city is the destination
             if (current.city == destination) {
+                current.numOfCities = exploredCities();
                 return current;
             }
 
@@ -67,6 +68,7 @@ public class Dijkstra {
                         int queueIndex = done[neighbour.id].index;
                         queue.bubble(queueIndex);
                     }
+
                 }
                 else {
                     // Add a new path to the neighbouring city
@@ -80,6 +82,14 @@ public class Dijkstra {
         }
 
         return null;
+    }
+
+    private Integer exploredCities() {
+        int cities = 0;
+        for (Path path : done) {
+            if (path != null) cities++;
+        }
+        return cities;
     }
 
     private boolean visited(City city) {
@@ -100,32 +110,5 @@ public class Dijkstra {
         for (int i = path.size() - 1; i >= 0; i--) {
             System.out.println(path.get(i).name);
         }
-    }
-
-    public static void main(String[] args) {
-        String fileName = "src/dijkstra/europe.csv";
-        String simpleFile = "src/graph/trains.csv";
-        graph.Map map = new graph.Map(fileName);
-        Dijkstra dijkstra = new Dijkstra(fileName);
-
-        PathMax pathMax = new PathMax();
-
-        graph.City from = map.getCity("Sundsvall");
-        graph.City to = map.getCity("Madrid");
-
-        long time = System.nanoTime();
-        int shortest = pathMax.shortest(from, to, null);
-        time = System.nanoTime() - time;
-
-        System.out.println(time / 1_000_000);
-
-        time = System.nanoTime();
-        Path result = dijkstra.shortest("Sundsvall", "Madrid");
-        time = System.nanoTime() - time;
-
-        System.out.println(time);
-        System.out.println();
-
-        dijkstra.printPath(result);
     }
 }
