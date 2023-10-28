@@ -1,6 +1,7 @@
 package utils;
 
 import binary_tree.BinaryTree;
+import dijkstra.Dijkstra;
 import doubly_linked_list.*;
 import graph.*;
 import hash.*;
@@ -199,7 +200,32 @@ public class Benchmarker {
                 sizes = new int[]{};
                 iterations = 10;
             }
+            case 20 -> {
+                fileName = "dijkstra";
+                columnNames = new String[]{
+                        "Distance (minutes)",
+                        "Swe",
+                        "Euro",
+                        "Dist",
+                        "Dijkstra"
+                };
+                rowsToIgnore = new int[]{0,3};
 
+                sizes = new int[]{};
+                iterations = 10;
+            }
+            case 21 -> {
+                fileName = "europe";
+                columnNames = new String[]{
+                        "Distance (minutes)",
+                        "Runtime Dijkstra",
+                        "Explored cities"
+                };
+                rowsToIgnore = new int[]{0,2};
+
+                sizes = new int[]{};
+                iterations = 10;
+            }
         }
     }
 
@@ -224,6 +250,8 @@ public class Benchmarker {
             case 17 -> path();
             case 18 -> pathMax();
             case 19 -> path_table();
+            case 20 -> dijkstra();
+            case 21 -> europe();
             default -> throw new IllegalStateException("Unexpected value: " + assignmentNumber);
         };
     }
@@ -1379,17 +1407,16 @@ public class Benchmarker {
 
             Integer dist;
             long t0 = System.nanoTime();
-            dist = Naive.shortest(from, to, 200);
+            Naive.shortest(from, to, 200);
             long time1 = (System.nanoTime() - t0);
 
             t0 = System.nanoTime();
-            dist = path.shortest(from, to);
+            path.shortest(from, to);
             long time2 = (System.nanoTime() - t0);
 
             t0 = System.nanoTime();
             dist = pathMax.shortest(from, to, 200);
             long time3 = (System.nanoTime() - t0);
-
 
             System.out.println("Distance from " + from.name + " - " + to.name + ": " + dist);
             System.out.printf("Naive: %d, path: %d, path max: %d",time1, time2, time3);
@@ -1399,8 +1426,151 @@ public class Benchmarker {
         return new double[][]{{}};
     }
 
+    private static double[][] dijkstra() {
+        String sweden = "src/graph/trains.csv";
+        String europe = "src/dijkstra/europe.csv";
+        Map mapSwe = new Map(sweden);
+        Map mapEuro = new Map(europe);
+        dijkstra.Map mapDij = new dijkstra.Map(europe);
+
+        PathMax pathSwe = new PathMax();
+        PathMax pathEuro = new PathMax();
+        Dijkstra dijkstra = new Dijkstra(europe);
+
+        String[] fromCities = new String[]{
+//                "Malmö",
+//                "Göteborg",
+//                "Malmö",
+//                "Stockholm",
+//                "Stockholm",
+//                "Göteborg",
+                "Sundsvall",
+//                "Umeå",
+//                "Göteborg"
+        };
+        String[] toCities = new String[]{
+//                "Göteborg",
+//                "Stockholm",
+//                "Stockholm",
+//                "Sundsvall",
+//                "Umeå",
+//                "Sundsvall",
+                "Umeå",
+//                "Göteborg",
+//                "Umeå"
+        };
+
+        int rowLength = columnNames.length;
+        double[][] benchmark = new double[fromCities.length][rowLength];
+
+        double minTimeSwe, minTimeEuro, minTimeDij;
+
+        int j = 0;
+        for (String fromName : fromCities) {
+            City fromSwe = mapSwe.getCity(fromName);
+            City toSwe = mapSwe.getCity(toCities[j]);
+
+            City fromEuro = mapEuro.getCity(fromName);
+            City toEuro = mapEuro.getCity(toCities[j]);
+
+            Integer dist = 0;
+            Integer distDij = 0;
+
+            minTimeSwe = minTimeEuro = minTimeDij = Double.POSITIVE_INFINITY;
+
+            for (int i = 0; i < iterations; i++) {
+                long time = System.nanoTime();
+                pathSwe.shortest(fromSwe, toSwe, null);
+                time = (System.nanoTime() - time);
+                minTimeSwe = time < minTimeSwe ? time : minTimeSwe;
+
+                time = System.nanoTime();
+                dist = pathEuro.shortest(fromEuro, toEuro, null);
+                time = (System.nanoTime() - time);
+                minTimeEuro = time < minTimeEuro ? time : minTimeEuro;
+
+                time = System.nanoTime();
+                dijkstra.Path path = dijkstra.shortest(fromName, toCities[j]);
+                time = (System.nanoTime() - time);
+                minTimeDij = time < minTimeDij ? time : minTimeDij;
+
+                distDij = path.distance;
+            }
+
+            System.out.println("Distance from " + fromSwe.name + " - " + toSwe.name + ": " + dist);
+            System.out.printf("Path max swe: %f, path max euro: %f, dijkstra: %f", minTimeSwe, minTimeEuro, minTimeDij);
+            System.out.println("\n");
+
+            benchmark[j][0] = dist;
+            benchmark[j][1] = minTimeSwe;
+            benchmark[j][2] = minTimeEuro;
+            benchmark[j][3] = distDij;
+            benchmark[j++][4] = minTimeDij;
+        }
+
+        return benchmark;
+    }
+
+    private static double[][] europe() {
+        String europe = "src/dijkstra/europe.csv";
+
+        Dijkstra dijkstra = new Dijkstra(europe);
+
+        String fromName = "Berlin";
+
+        String[] toCities = new String[]{
+                "Leipzig",
+                "Prag",
+                "Paris",
+                "London",
+                "Stockholm",
+                "Marseille",
+                "Milano",
+                "Florens",
+                "Rom",
+                "Madrid",
+                "Helsingfors",
+                "Kiruna"
+        };
+
+        int rowLength = columnNames.length;
+        double[][] benchmark = new double[toCities.length][rowLength];
+
+        double minTimeDij;
+
+        int j = 0;
+        for (String toName : toCities) {
+
+            Integer distDij = 0;
+
+            minTimeDij = Double.POSITIVE_INFINITY;
+            int exploredCities = 0;
+
+            for (int i = 0; i < iterations; i++) {
+                long time = System.nanoTime();
+                dijkstra.Path path = dijkstra.shortest(fromName, toCities[j]);
+                time = (System.nanoTime() - time);
+                minTimeDij = time < minTimeDij ? time : minTimeDij;
+
+                exploredCities = path.numOfCities;
+                distDij = path.distance;
+            }
+
+            System.out.println("Distance from " + fromName + " - " + toName + ": " + distDij);
+            System.out.printf("Dijkstra: %f", minTimeDij);
+            System.out.println("\n");
+
+            benchmark[j][0] = distDij;
+            benchmark[j][1] = minTimeDij;
+            benchmark[j++][2] = exploredCities;
+        }
+
+        return benchmark;
+    }
+
+
     public static void main(String[] args) {
-        int assignmentNumber = 19;
+        int assignmentNumber = 21;
 
         setupBench(assignmentNumber);
 

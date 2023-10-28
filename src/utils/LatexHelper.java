@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class LatexHelper {
 
-    private final static int prefix = 1_000_000;
+    private final static int prefix = 1_000;
     private final static int precision = 2;
     private static final int DATA_SPACE = 10;
 
