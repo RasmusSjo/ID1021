@@ -109,7 +109,7 @@ public class PriorityQueue {
     private void resize() {
         double factor = 2;
         Path[] temp = new Path[(int) (heap.length * factor)];
-        System.arraycopy(heap, 0, temp, 0, (int) (heap.length * factor));
+        System.arraycopy(heap, 0, temp, 0, free);
         heap = temp;
     }
 
@@ -127,5 +127,16 @@ public class PriorityQueue {
 
     public boolean isEmpty() {
         return free == 0;
+    }
+
+    public void clear() {
+        // Clear the index of all paths
+        for (int index = 0; index < free; index++) {
+            heap[index].index = null;
+        }
+
+        // Clear the heap and set the free slot to 0
+        heap = new Path[heap.length];
+        free = 0;
     }
 }
