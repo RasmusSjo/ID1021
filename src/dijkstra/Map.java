@@ -48,7 +48,6 @@ public class Map {
             hashIndex++;
         }
 
-        numOfCities++;
         cities[hashIndex] = city;
     }
 
