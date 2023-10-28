@@ -21,7 +21,7 @@ public class PriorityQueue {
             resize();
         }
 
-        // Insert new value, will be put as rightmost leaf
+        // Insert new path as rightmost leaf and update queue index of it
         heap[free] = path;
         path.index = free;
 
@@ -34,7 +34,7 @@ public class PriorityQueue {
         if (isEmpty()) throw new IllegalStateException("Can't poll from an empty queue!");
         Path path = heap[0];
 
-        // Place the rightmost element at the top
+        // Place the rightmost element at the top and update its queue index
         heap[0] = heap[--free];
         heap[0].index = 0;
         heap[free] = null;
@@ -47,19 +47,19 @@ public class PriorityQueue {
 
 
     public void bubble(int child) {
-        int parent = (child - 1) / 2;
+        int parent = parent(child);
 
         bubble(parent, child);
     }
 
     private void bubble(int parent, int child) {
-        // Bubble a path towards the top if its distance is smaller than its parents
+        // Bubble a path towards the top if its distance is smaller than its parents distance
         while (heap[parent].distance > heap[child].distance) {
             swap(parent, child);
 
             // Find index of parent
             child = parent;
-            parent = (parent - 1) / 2;
+            parent = parent(child);
         }
     }
 
@@ -113,13 +113,16 @@ public class PriorityQueue {
         heap = temp;
     }
 
-
-    private int leftChild(int index) {
-        return index * 2 + 1;
+    private int parent(int child) {
+        return (child - 1) / 2;
     }
 
-    private int rightChild(int index) {
-        return index * 2 + 2;
+    private int leftChild(int parent) {
+        return parent * 2 + 1;
+    }
+
+    private int rightChild(int parent) {
+        return parent * 2 + 2;
     }
 
     public boolean isEmpty() {
