@@ -6,7 +6,7 @@ public class PathMax {
     int next;
 
     public PathMax() {
-        path = new City[54];
+        path = new City[133];
         next = 0;
     }
 
